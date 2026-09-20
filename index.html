@@ -1,0 +1,237 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Marcelina Miani — Portfolio</title>
+  <meta name="description" content="Portfolio of Marcelina Miani — paintings, drawings, photography, pixel art and level design.">
+  <meta name="theme-color" content="#FFF8F5">
+
+  <!-- Inline SVG favicon (data URI, self-contained) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2064%2064'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'64'%20y2%3D'64'%20gradientUnits%3D'userSpaceOnUse'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%23F7DDE5'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%23E7DDF4'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'64'%20height%3D'64'%20rx%3D'16'%20fill%3D'url(%23g)'%2F%3E%3Cpath%20d%3D'M16%2046V20l16%2015%2016-15v26'%20fill%3D'none'%20stroke%3D'%233D2945'%20stroke-width%3D'6'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'%2F%3E%3C%2Fsvg%3E">
+
+  <!-- Open Graph + Twitter. Canonical, og:url and og:image are set by JS once MP_DATA.site.url is non-empty. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Marcelina Miani">
+  <meta property="og:title" content="Marcelina Miani — Portfolio">
+  <meta property="og:description" content="Portfolio of Marcelina Miani — paintings, drawings, photography, pixel art and level design.">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Marcelina Miani — Portfolio">
+  <meta name="twitter:description" content="Portfolio of Marcelina Miani — paintings, drawings, photography, pixel art and level design.">
+
+  <!-- Fonts: DM Serif Display (display) + Manrope (UI/body). font-display: swap via &display=swap. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=Manrope:wght@400;500;600;700&amp;display=swap">
+
+  <!-- Stylesheets â€” load order per architecture.md Â§1 -->
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/scenes.css">
+</head>
+<body class="app" data-app>
+
+  <!-- First focusable element in the document. -->
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="scroll-bar" aria-hidden="true" data-scroll-bar><span data-scroll-bar-fill></span></div>
+
+  <header class="site-header" data-header>
+    <div class="site-header__inner">
+      <a class="brand" href="#hero" data-anchor>Marcelina Miani</a>
+      <nav class="nav" aria-label="Primary">
+        <ul class="nav__list">
+          <li><a class="nav__link" href="#categories" data-anchor>Categories</a></li>
+          <li class="nav__group">
+            <button class="nav__link" type="button" data-works-toggle
+                    aria-expanded="false" aria-controls="works-menu">My Works</button>
+            <!-- Built by header.js. Static fallback below keeps the no-JS view complete:
+                 JS must clear the container before inserting its own <li> items. -->
+            <ul class="nav__menu" id="works-menu" data-works-menu role="list">
+              <li><a class="nav__link" href="#pixel-art" data-anchor>Pixel Art</a></li>
+              <li><a class="nav__link" href="#sketches" data-anchor>Sketches</a></li>
+              <li><a class="nav__link" href="#paintings" data-anchor>Paintings</a></li>
+              <li><a class="nav__link" href="#photography" data-anchor>Photography</a></li>
+              <li><a class="nav__link" href="#level-design" data-anchor>Level Design</a></li>
+            </ul>
+          </li>
+          <li><a class="nav__link" href="#contact" data-anchor>Contact Me</a></li>
+        </ul>
+      </nav>
+      <button class="nav-toggle" type="button" data-nav-toggle
+              aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu">
+        <span class="nav-toggle__box" aria-hidden="true"><i></i><i></i><i></i></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="mobile-nav" id="mobile-nav" data-mobile-nav hidden>
+    <nav class="mobile-nav__inner" aria-label="Mobile">
+      <!-- Built by header.js. Static fallback below keeps the no-JS view complete:
+           JS must clear the container before inserting its own <li> items. -->
+      <ul class="mobile-nav__list" data-mobile-nav-list>
+        <li><a class="mobile-nav__link" href="#categories" data-anchor>Categories</a></li>
+        <li><a class="mobile-nav__link" href="#pixel-art" data-anchor>Pixel Art</a></li>
+        <li><a class="mobile-nav__link" href="#sketches" data-anchor>Sketches</a></li>
+        <li><a class="mobile-nav__link" href="#paintings" data-anchor>Paintings</a></li>
+        <li><a class="mobile-nav__link" href="#photography" data-anchor>Photography</a></li>
+        <li><a class="mobile-nav__link" href="#level-design" data-anchor>Level Design</a></li>
+        <li><a class="mobile-nav__link" href="#contact" data-anchor>Contact Me</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <main class="app__main" id="main">
+
+    <!-- HERO -->
+    <section class="scene scene--hero" id="hero" data-scene="hero">
+      <div class="scene__bg scene__bg--hero" aria-hidden="true" data-parallax="bg"></div>
+      <div class="scene__atmosphere" aria-hidden="true" data-parallax="atmosphere">
+        <span class="orb orb--1"></span><span class="orb orb--2"></span><span class="orb orb--3"></span>
+      </div>
+      <!-- Portrait src/alt are set by hero.js; no src here so a missing image never shows a broken glyph. -->
+      <div class="hero__portrait" data-parallax="portrait">
+        <img data-hero-portrait alt="" decoding="async">
+      </div>
+      <h1 class="hero__title">
+        <span class="hero__title-main" data-hero-name>MARCELINA</span>
+        <span class="hero__title-sub" data-hero-surname>MIANI</span>
+      </h1>
+      <p class="hero__tagline" data-hero-tagline>A sketchbook in one hand, a world in the other.</p>
+      <p class="hero__hint" data-scroll-hint>Scroll to explore</p>
+    </section>
+
+    <!-- CATEGORY EXPLORER -->
+    <section class="scene scene--explorer" id="categories" data-scene="explorer">
+      <header class="explorer__head">
+        <p class="eyebrow" data-explorer-eyebrow>The Work</p>
+        <h2 class="explorer__title" data-explorer-title>Start anywhere</h2>
+        <p class="explorer__lede" data-explorer-lede>Five ways of working and one pair of hands — from a painting you could hang on a wall to a level you could actually walk through. Have a wander; nothing here was made in a hurry.</p>
+      </header>
+      <!-- Islands are built here by categories.js â€” see the template at the end of this file. -->
+      <div class="explorer__field" data-island-field></div>
+    </section>
+
+    <!-- PORTFOLIO SCENES are injected here by portfolio.js -->
+    <!--
+      Generated markup contract (architecture.md Â§3) â€” one <section> per category, in
+      MP.data.categories order, written by portfolio.js into [data-scenes-root].
+      {tint} is one of blush | lavender | peach | butter | mint | periwinkle | rose.
+
+      <section class="scene scene--portfolio" id="{category.id}" data-scene="portfolio"
+               data-category-id="{category.id}" aria-labelledby="{category.id}-title">
+        <div class="scene__bg scene__bg--{tint}" aria-hidden="true" data-parallax="bg"></div>
+        <div class="portfolio__inner">
+          <div class="portfolio__info">
+            <p class="eyebrow" data-category-label>{category.title}</p>
+            <h2 class="portfolio__title" id="{category.id}-title" data-project-title></h2>
+            <p class="portfolio__desc" data-project-desc></p>
+            <dl class="portfolio__specs" data-project-specs></dl>
+            <div class="portfolio__nav">
+              <button type="button" class="btn btn--ghost" data-project-prev aria-label="Previous project">‹</button>
+              <p class="portfolio__counter" data-project-counter aria-live="polite"></p>
+              <button type="button" class="btn btn--ghost" data-project-next aria-label="Next project">›</button>
+            </div>
+          </div>
+          <div class="portfolio__media" data-media-root></div>
+        </div>
+      </section>
+    -->
+    <div class="scenes-root" data-scenes-root></div>
+
+    <!-- CONTACT -->
+    <section class="scene scene--contact" id="contact" data-scene="contact">
+      <div class="scene__bg scene__bg--contact" aria-hidden="true" data-parallax="bg"></div>
+      <div class="contact__inner">
+        <!-- Portrait src/alt are set by contact.js; no src here so a missing image never shows a broken glyph. -->
+        <div class="contact__media" data-parallax="portrait">
+          <img data-contact-portrait alt="" loading="lazy" decoding="async">
+        </div>
+        <div class="contact__body">
+          <p class="eyebrow" data-contact-eyebrow>Say hello</p>
+          <h2 class="contact__title" data-contact-title>Let's make something</h2>
+          <p class="contact__message" data-contact-message>Whether you have a project in mind or just want to say hello, my inbox is open. Send me a note and tell me what you're working on — I'm always curious.</p>
+          <!-- Built by contact.js. Static fallback below keeps the no-JS view complete:
+               JS must clear the container before inserting its own <li> items. The email
+               method is promoted to the CTA below, so it is never repeated as a pill. -->
+          <ul class="contact__links" data-contact-links>
+            <li><a href="https://www.linkedin.com/in/marcelina-miani-96b627317/" target="_blank" rel="noopener">LinkedIn</a></li>
+          </ul>
+          <div class="contact__cta" data-contact-cta>
+            <a class="btn" href="mailto:hello@lorem-ipsum.example">Email me</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p class="site-footer__copy" data-footer-copy>© 2026 Marcelina Miani · All rights reserved.</p>
+    <nav class="site-footer__nav" aria-label="Footer">
+      <!-- Deliberately empty: the footer carries no links â€” every contact method lives
+           on the contact scene above. contact.js clears this container before inserting
+           its own <li> items, so it stays empty while footer.links is empty in
+           data/content.js. The hook itself is kept because the checker requires every
+           [data-*] hook that JS queries to exist in the document. -->
+      <ul class="site-footer__links" data-footer-links></ul>
+    </nav>
+    <button class="site-footer__top" type="button" data-back-to-top>Back to top</button>
+  </footer>
+
+  <div class="lightbox" data-lightbox hidden role="dialog" aria-modal="true" aria-label="Image viewer">
+    <div class="lightbox__stage" data-lightbox-stage>
+      <img class="lightbox__img" data-lightbox-img alt="">
+    </div>
+    <div class="lightbox__ui">
+      <button type="button" data-lightbox-prev aria-label="Previous image">‹</button>
+      <p class="lightbox__counter" data-lightbox-counter aria-live="polite"></p>
+      <button type="button" data-lightbox-next aria-label="Next image">›</button>
+      <button type="button" data-lightbox-zoom aria-pressed="false" aria-label="Toggle zoom">+</button>
+      <button type="button" data-lightbox-close aria-label="Close viewer">×</button>
+    </div>
+    <p class="lightbox__hint" data-lightbox-hint>Esc to close · ←/→ to browse · scroll to zoom · double-click to reset</p>
+  </div>
+
+  <!-- One <clipPath> per blob preset is injected here by categories.js (MP.categories.presets). -->
+  <svg class="svg-defs" aria-hidden="true" focusable="false" width="0" height="0" data-blob-defs></svg>
+
+  <!--
+    Island markup contract (architecture.md Â§3) â€” rendered by categories.js into
+    [data-island-field]; one <a> per category, in MP.data.categories order.
+
+    <a class="island island--{presetId} island--size-{lg|md|sm}" href="#{category.id}"
+       data-anchor data-island data-category-id="{category.id}"
+       style="--island-x:â€¦;--island-y:â€¦;--island-rot:â€¦;--island-delay:â€¦">
+      <span class="island__media" aria-hidden="true">
+        <img class="island__img" alt="" loading="lazy" decoding="async">
+      </span>
+      <span class="island__label">
+        <span class="island__title">{category.title}</span>
+        <span class="island__count">{n} projects</span>
+      </span>
+    </a>
+  -->
+
+  <!-- Scripts â€” load order per architecture.md Â§2 (classic <script defer>, no modules). -->
+  <script src="data/content.js" defer></script>
+  <script src="data/media-manifest.js" defer></script>
+  <script src="assets/js/util.js" defer></script>
+  <script src="assets/js/motion.js" defer></script>
+  <script src="assets/js/scroll.js" defer></script>
+  <script src="assets/js/data.js" defer></script>
+  <script src="assets/js/header.js" defer></script>
+  <script src="assets/js/hero.js" defer></script>
+  <script src="assets/js/media.js" defer></script>
+  <script src="assets/js/carousel.js" defer></script>
+  <script src="assets/js/lightbox.js" defer></script>
+  <script src="assets/js/portfolio.js" defer></script>
+  <script src="assets/js/categories.js" defer></script>
+  <script src="assets/js/autoplay.js" defer></script>
+  <script src="assets/js/contact.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,918 @@
+﻿/* ============================================================================
+   scenes.css â€” cinematic scene composition + scroll-linked choreography
+   ----------------------------------------------------------------------------
+   OWNERSHIP (architecture.md Â§1, Â§8)
+     This file composes the five scenes and their decoration:
+       hero Â· explorer (island placement) Â· portfolio Â· contact Â· footer.
+     Component skin (buttons, cards, carousel chrome, media frames, specs table,
+     contact pills, lightbox) is owned by components.css and is intentionally
+     NOT re-declared here; this file only shapes how those components sit in
+     each scene so text and media read as two depth layers, not rigid columns.
+
+   GROUND TRUTH â€” the hooks this file responds to (read from the JS; never invent
+   class names):
+     â€¢ main.js reveal():    html/body.classList remove 'is-loading' â†’ add
+                            'is-ready'  â†’ the hero entrance runs ONCE from that
+                            class change (not scroll-linked, no keyframes).
+     â€¢ main.js scroll hint: [data-scroll-hint].is-hidden after 8px of scroll.
+     â€¢ hero.js:             writes inline transform on [data-parallax] inside
+                            [data-scene="hero"] (bg / atmosphere / portrait) and
+                            adds nothing else â€” the entrance must not touch those
+                            elements' `transform`.
+     â€¢ portfolio.js:        writes inline transform + opacity on .portfolio__info
+                            and .portfolio__media every frame from scroll
+                            progress; CSS must not transition those properties.
+     â€¢ categories.js:       sets --island-x / --island-y / --island-rot inline and
+                            lets MP.motion.float own the island `transform`; the
+                            scene places islands with left/top + translate/rotate
+                            only â€” never `transform`.
+     â€¢ carousel.js:         writes transform/opacity/z-index on .carousel__card.
+
+   MOTION RULE: CSS never animates scroll-linked motion â€” no keyframes touch a
+   scene. The hero entrance is the only staged effect: a class-driven transition
+   on load. Never add `transform`/`opacity` transitions to elements the JS drives
+   (parallax layers, .portfolio__info, .portfolio__media, .carousel__card,
+   .island, .island__media) â€” the inline write would fight the transition.
+   ============================================================================ */
+
+/* ================================================================ 0. scenes == */
+/* Clip scene bleed (island scatter, rotated carousel cards, the hero portrait)
+   so the page can never develop a horizontal scrollbar (architecture Â§8.6). */
+.scene {
+  overflow: clip;
+}
+
+/* ============================================================== 1. HERO ===== */
+/* Split composition: the full-height portrait owns the LEFT edge, and the whole
+   type block (name + surname + tagline) sits in a column on the RIGHT. The left
+   padding is derived from the portrait's real width â€” 50px offset + 100svh Ã— the
+   image aspect (1024/1149 = 89.1%) â€” plus a gutter, so the copy starts just past
+   her shoulder at every screen aspect instead of at a guessed percentage. */
+.scene--hero {
+  --hero-lift: 0px;
+
+  justify-content: center;
+  align-items: flex-start;
+  padding-inline-start: min(calc(90px + 89.1svh), 58%);
+  background-color: var(--c-blush);
+  text-align: start;
+}
+
+/* --- full-viewport pink â†’ magenta â†’ violet gradient ---------------------- */
+.scene--hero .scene__bg--hero {
+  background-color: var(--c-blush);
+  background-image:
+    radial-gradient(88% 68% at 84% 7%,
+      color-mix(in srgb, var(--c-warm-white) 55%, transparent), transparent 62%),
+    linear-gradient(158deg,
+      var(--c-blush) 0%,
+      var(--c-rose) 40%,
+      color-mix(in srgb, var(--c-lavender) 62%, var(--c-rose)) 72%,
+      var(--c-lavender) 100%);
+  opacity: 0;
+  transition: opacity 820ms var(--ease-soft);
+}
+
+.is-ready .scene--hero .scene__bg--hero,
+.is-ready .scene__bg--hero {
+  opacity: 1;
+}
+
+/* --- extremely subtle atmospheric shapes --------------------------------- */
+.scene__atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-atmos);
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 900ms var(--ease-soft) 560ms;
+}
+
+.is-ready .scene__atmosphere {
+  opacity: 1;
+}
+
+.orb {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  filter: blur(48px);
+  pointer-events: none;
+}
+
+.orb--1 {
+  inset-block-start: -8%;
+  inset-inline-start: -5%;
+  width: clamp(180px, 26vw, 420px);
+  aspect-ratio: 1 / 1;
+  opacity: 0.55;
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--c-warm-white) 82%, transparent), transparent 70%);
+}
+
+.orb--2 {
+  inset-block-end: 4%;
+  inset-inline-end: -7%;
+  width: clamp(140px, 21vw, 360px);
+  aspect-ratio: 1 / 1;
+  opacity: 0.45;
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--c-rose-deep) 55%, transparent), transparent 72%);
+}
+
+.orb--3 {
+  inset-block-start: 42%;
+  inset-inline-start: 56%;
+  width: clamp(100px, 15vw, 250px);
+  aspect-ratio: 1 / 1;
+  opacity: 0.4;
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--c-lavender) 88%, transparent), transparent 70%);
+}
+
+/* --- the portrait: full-height subject pinned to the LEFT edge ------------ */
+/* hero.js owns the element `transform`; positioning uses inset only, never
+   translate, and the entrance runs on the inner <img>. Sized from viewport
+   HEIGHT (aspect-ratio, never vw) so narrowing the window never shrinks her.
+   She runs the full height and sits UNDER the copy, so the name is always
+   fully readable beside her. */
+.scene--hero .hero__portrait {
+  position: absolute;
+  inset-inline-start: 50px;
+  inset-inline-end: auto;
+  inset-block-start: 0;
+  inset-block-end: 0;
+  z-index: var(--z-media);
+  height: 100%;
+  aspect-ratio: 1024 / 1149;
+  width: auto;
+  pointer-events: none;
+}
+
+.scene--hero .hero__portrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--r-lg);
+  object-fit: contain;
+  object-position: bottom center;
+  opacity: 0;
+  transform: translateY(2%) scale(1.045);
+  transition:
+    opacity 900ms var(--ease-soft) 360ms,
+    transform 1000ms var(--ease-soft) 360ms;
+}
+
+.is-ready .scene--hero .hero__portrait img {
+  opacity: 1;
+  transform: none;
+}
+
+/* Placeholder = a soft, faded ghost: no card fill, no hard rectangle edge and
+   no visible frame â€” just a warm aura the future subject will step into. Only
+   the placeholder state is affected; a real portrait keeps its rounded crop. */
+.scene--hero .hero__portrait img.is-placeholder {
+  border-radius: 0;
+  filter: blur(12px) saturate(1.08);
+  -webkit-mask-image: radial-gradient(48% 44% at 50% 46%,
+    rgba(0, 0, 0, 0.6) 0%,
+    rgba(0, 0, 0, 0.42) 42%,
+    transparent 74%);
+  mask-image: radial-gradient(48% 44% at 50% 46%,
+    rgba(0, 0, 0, 0.6) 0%,
+    rgba(0, 0, 0, 0.42) 42%,
+    transparent 74%);
+}
+
+/* --- the display name + lower-right surname ------------------------------ */
+.scene--hero .hero__title {
+  position: relative;
+  z-index: var(--z-fg);
+  /* `translate` only â€” the entrance owns `transform` on the children. */
+  translate: 0 calc(-1 * var(--hero-lift));
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: 0;
+  padding-block-end: clamp(20px, 3vw, 44px);
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: var(--lh-tight);
+  text-align: start;
+}
+
+.scene--hero .hero__title-main {
+  display: block;
+  /* Sized to live in the right column beside the full-height portrait. */
+  font-size: min(var(--fs-display), 7.5vw);
+  line-height: 0.82;
+  letter-spacing: -0.015em;
+  color: var(--c-plum);
+  text-shadow: 0 0.03em 0.7em color-mix(in srgb, var(--c-warm-white) 38%, transparent);
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 700ms var(--ease-soft) 140ms,
+    transform 760ms var(--ease-soft) 140ms;
+}
+
+/* Surname â€” a deliberate editorial mark, not a whisper: dark plum for real
+   contrast on the pink ground, wide tracking and a short rose rule, set on its
+   own line at the lower-right of the name so it stays legible over a portrait. */
+.scene--hero .hero__title-sub {
+  position: absolute;
+  inset-inline-end: 0;
+  inset-block-end: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(8px, 1vw, 16px);
+  margin-inline-end: -0.42em;
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 1.8vw, 1.8rem);
+  font-weight: 700;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--c-plum);
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 700ms var(--ease-soft) 240ms,
+    transform 760ms var(--ease-soft) 240ms;
+}
+
+.scene--hero .hero__title-sub::before {
+  content: "";
+  flex: 0 0 auto;
+  width: clamp(22px, 3.4vw, 52px);
+  height: 2px;
+  border-radius: var(--r-pill);
+  background-image: linear-gradient(90deg, var(--c-rose), var(--c-rose-deep));
+}
+
+.is-ready .scene--hero .hero__title-main,
+.is-ready .scene--hero .hero__title-sub {
+  opacity: 1;
+  transform: none;
+}
+
+/* --- tagline: sits beneath the name, inside the right column -------------- */
+.scene--hero .hero__tagline {
+  position: relative;
+  z-index: var(--z-fg);
+  translate: 0 calc(-1 * var(--hero-lift));
+  width: min(100%, 42ch);
+  margin-block-start: clamp(14px, 2.4svh, 28px);
+  margin-inline: 0;
+  padding: 0;
+  text-align: start;
+  font-size: var(--fs-body);
+  color: var(--text);
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 700ms var(--ease-soft) 320ms,
+    transform 760ms var(--ease-soft) 320ms;
+}
+
+.is-ready .scene--hero .hero__tagline {
+  opacity: 1;
+  transform: none;
+}
+
+/* --- tiny, understated scroll hint --------------------------------------- */
+/* Sits in the right-hand copy column (never over the portrait) and rides one
+   z-step ABOVE the portrait as belt-and-braces. */
+.scene--hero .hero__hint {
+  position: absolute;
+  inset-inline-start: min(calc(90px + 89.1svh), 58%);
+  inset-inline-end: var(--scene-pad);
+  inset-block-end: var(--sp-4);
+  z-index: calc(var(--z-fg) + 2);
+  margin: 0;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  text-indent: 0.32em;
+  text-align: start;
+  color: var(--text);
+  opacity: 0;
+  transition:
+    opacity 700ms var(--ease-out) 620ms,
+    transform 480ms var(--ease-out);
+}
+
+.is-ready .scene--hero .hero__hint {
+  opacity: 0.68;
+}
+
+/* main.js sets this after 8px of scroll. */
+.scene--hero .hero__hint.is-hidden {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+/* =========================================================== 2. EXPLORER === */
+/* Two coordinated panels, like every scene below it: the intro copy on the
+   left, the island scatter on the right. */
+/* The scene stays full-bleed (its background must reach both viewport edges,
+   exactly like every scene below it); only the CONTENT is centred at --max-w
+   via symmetric side padding, so the wash never stops short on the right. */
+.scene--explorer {
+  justify-content: center;
+  display: grid;
+  grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+  align-items: center;
+  gap: clamp(24px, 4.5vw, 76px);
+  padding-inline: max(var(--scene-pad), calc((100% - var(--max-w)) / 2));
+  background-color: var(--c-warm-white);
+  background-image:
+    radial-gradient(90% 70% at 80% 10%,
+      color-mix(in srgb, var(--tint-2) 52%, transparent), transparent 62%);
+  text-align: start;
+}
+
+.explorer__head {
+  position: relative;
+  z-index: var(--z-type);
+  max-width: 46ch;
+}
+
+.explorer__title {
+  margin-block-start: var(--sp-2);
+  font-size: var(--fs-h1);
+  color: var(--text);
+  max-width: 22ch;
+}
+
+.explorer__lede {
+  margin-block-start: var(--sp-2);
+  max-width: 56ch;
+  font-size: var(--fs-body);
+  color: var(--text-soft);
+}
+
+/* The loose, asymmetric island canvas (never a grid). sits in the right panel. */
+.explorer__field {
+  position: relative;
+  width: 100%;
+  /* categories.js sizes the islands from this rect, so the field's height is
+     what decides how big the cluster can be. In the right panel it is
+     deliberately wider than tall so the five shapes settle into one centred,
+     thrown-on-the-ground cluster rather than a sparse drift. */
+  min-height: clamp(580px, 80svh, 980px);
+}
+
+/* --- island placement: left/top + translate, never transform ----------- */
+/* --island-x / --island-y / --island-rot are the exact names categories.js
+   writes inline; transform stays free for MP.motion.float, and the visual
+   skin (clip-path, shadow, label) belongs to components.css. */
+.explorer__field .island {
+  position: absolute;
+  left: var(--island-x, 50%);
+  top: var(--island-y, 50%);
+  /* categories.js owns the size: it resolves the scatter against the field's
+     real rect and publishes a fitted --island-w per island, so the cluster
+     stays close without ever overlapping at any aspect ratio. The fallback is
+     the lg slot, for the no-JS case. */
+  width: var(--island-w, clamp(240px, 25vw, 390px));
+  translate: -50% -50%;
+  rotate: var(--island-rot, 0deg);
+}
+
+.explorer__field .island:focus-visible {
+  outline-offset: 6px;
+}
+
+/* ========================================================== 3. PORTFOLIO === */
+.scene--portfolio {
+  background-color: var(--tint);
+}
+
+/* Each tint family gets its own wash + accent blob so no two adjacent scenes
+   read the same. --tint / --tint-2 come from tokens.css, one block per tint. */
+.scene--portfolio .scene__bg {
+  background-color: var(--tint);
+  background-image:
+    radial-gradient(115% 88% at 88% 6%,
+      color-mix(in srgb, var(--c-warm-white) 74%, transparent), transparent 58%),
+    linear-gradient(202deg,
+      color-mix(in srgb, var(--tint) 86%, var(--c-warm-white)) 0%,
+      var(--c-warm-white) 48%,
+      color-mix(in srgb, var(--tint-2) 62%, var(--c-warm-white)) 100%);
+}
+
+.scene--portfolio .scene__bg::after {
+  content: "";
+  position: absolute;
+  width: clamp(180px, 26vw, 460px);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  filter: blur(64px);
+  opacity: 0.5;
+}
+
+.scene__bg--blush::after {
+  inset-block-start: 10%;
+  inset-inline-end: 4%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--c-rose) 52%, transparent), transparent 70%);
+}
+
+.scene__bg--lavender::after {
+  inset-block-start: 14%;
+  inset-inline-start: 6%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--c-periwinkle) 60%, transparent), transparent 70%);
+}
+
+.scene__bg--peach::after {
+  inset-block-end: 8%;
+  inset-inline-end: 8%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--c-butter) 62%, transparent), transparent 72%);
+}
+
+.scene__bg--butter::after {
+  inset-block-start: 8%;
+  inset-inline-end: 10%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--c-peach) 58%, transparent), transparent 70%);
+}
+
+.scene__bg--mint::after {
+  inset-block-end: 6%;
+  inset-inline-start: 4%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--c-periwinkle) 55%, transparent), transparent 70%);
+}
+
+.scene__bg--periwinkle::after {
+  inset-block-start: 12%;
+  inset-inline-end: 6%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--c-lavender) 62%, transparent), transparent 70%);
+}
+
+.scene__bg--rose::after {
+  inset-block-end: 10%;
+  inset-inline-start: 8%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--c-blush) 66%, transparent), transparent 72%);
+}
+
+/* --- two coordinated depth layers, not two rigid columns ----------------- */
+.scene--portfolio .portfolio__inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  align-items: center;
+  gap: clamp(24px, 4.5vw, 76px);
+  width: min(100%, var(--max-w));
+  margin-inline: auto;
+}
+
+.scene--portfolio .portfolio__info {
+  grid-column: 1;
+  grid-row: 1;
+  z-index: var(--z-type);
+  max-width: 46ch;
+  margin-block-start: clamp(0px, 2vh, 28px);
+}
+
+.scene--portfolio .portfolio__media {
+  grid-column: 2;
+  grid-row: 1;
+  z-index: var(--z-media);
+  width: 100%;
+  min-width: 0;
+  margin-block-start: clamp(-40px, -3.4vh, 0px);
+}
+
+/* Mirror alternate scenes so the spread never feels mechanical. */
+.scene--portfolio:nth-of-type(even) .portfolio__info { grid-column: 2; }
+.scene--portfolio:nth-of-type(even) .portfolio__media { grid-column: 1; }
+
+.scene--portfolio .portfolio__title {
+  margin-block-start: var(--sp-1);
+  font-size: var(--fs-h1);
+  color: var(--text);
+}
+
+.scene--portfolio .portfolio__desc {
+  margin-block-start: var(--sp-2);
+  max-width: 46ch;
+  font-size: var(--fs-body);
+  color: var(--text-soft);
+}
+
+/* Specs list placement inside the info column (components.css owns the skin). */
+.scene--portfolio .portfolio__specs {
+  margin-block-start: var(--sp-3);
+}
+
+/* Project nav + counter. */
+.scene--portfolio .portfolio__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-block-start: var(--sp-4);
+}
+
+.scene--portfolio .portfolio__counter {
+  flex: 1 1 auto;
+  margin: 0;
+}
+
+/* ============================================================ 4. CONTACT === */
+/* Warmer and calmer than the portfolio scenes (plan Â§27). */
+.scene--contact {
+  background-color: var(--tint);
+}
+
+.scene--contact .scene__bg--contact {
+  background-color: var(--tint);
+  background-image:
+    radial-gradient(78% 62% at 10% 16%,
+      color-mix(in srgb, var(--c-warm-white) 82%, transparent), transparent 62%),
+    linear-gradient(168deg,
+      var(--c-warm-white) 0%,
+      var(--tint) 56%,
+      color-mix(in srgb, var(--tint-2) 70%, var(--c-warm-white)) 100%);
+}
+
+/* The inner spans the whole scene, so the cut-out can stand on the scene floor
+   at full height while the copy stays vertically centred beside her. `row-reverse`
+   puts the copy on the LEFT and the subject on the RIGHT (the portrait is the
+   first child in the markup). */
+.scene--contact .contact__inner {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-deco);
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(24px, 4vw, 72px);
+  padding-inline: var(--scene-pad);
+}
+
+/* No frame, no card, no shadow box: the subject is a cut-out that stands on the
+   footer line and runs nearly the whole height of the scene, so she reads as
+   part of the room rather than as a picture hanging in it (plan Â§27). Sized
+   from viewport HEIGHT so narrowing the window never shrinks her. */
+.scene--contact .contact__media {
+  flex: 0 0 auto;
+  align-self: flex-end;
+  height: 92%;
+  aspect-ratio: 700 / 854;
+  width: auto;
+  z-index: var(--z-media);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.scene--contact .contact__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom center;
+  filter: drop-shadow(0 20px 36px color-mix(in srgb, var(--c-plum) 15%, transparent));
+}
+
+/* Placeholder state â€” until the cut-out PNG exists, the slot stays a soft warm
+   ghost that still runs the full height of the scene, so the composition never
+   shows a framed rectangle, a broken glyph or an empty left field. */
+.scene--contact .contact__media img[data-placeholder="1"] {
+  object-fit: fill;
+  opacity: 0.72;
+  filter: blur(15px) saturate(1.1);
+  -webkit-mask-image: radial-gradient(56% 64% at 50% 52%,
+    rgba(0, 0, 0, 0.66) 0%,
+    rgba(0, 0, 0, 0.42) 48%,
+    transparent 82%);
+  mask-image: radial-gradient(56% 64% at 50% 52%,
+    rgba(0, 0, 0, 0.66) 0%,
+    rgba(0, 0, 0, 0.42) 48%,
+    transparent 82%);
+}
+
+/* The body is one wrapping flex line: the copy blocks claim the full width and
+   break the line themselves, so the LAST line is the action pair â€” the contact
+   pill and the CTA share it as two mirror-image halves that run edge to edge.
+   The row is therefore exactly as wide as the paragraph above it, and which
+   control sits left or right is pure DOM order (contact.js writes the pills
+   first, the promoted CTA second) â€” nothing is positioned by hand. */
+.scene--contact .contact__body {
+  position: relative;
+  z-index: var(--z-type);
+  flex: 0 1 auto;
+  max-width: 46ch;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  column-gap: var(--sp-2);
+}
+
+.scene--contact .contact__body > .eyebrow,
+.scene--contact .contact__body > .contact__title,
+.scene--contact .contact__body > .contact__message {
+  flex: 0 0 100%;
+}
+
+.scene--contact .contact__title {
+  margin-block-start: var(--sp-2);
+  font-size: var(--fs-h1);
+  color: var(--text);
+}
+
+.scene--contact .contact__message {
+  margin-block-start: var(--sp-2);
+  font-size: var(--fs-body);
+  color: var(--text-soft);
+}
+
+/* The pair. Equal `flex-basis: 0` and equal grow is what makes the two halves
+   exactly symmetrical whatever each label happens to measure, and both carry the
+   same top margin so their tops stay on one line. An empty half collapses (a
+   pill list with no pill, a CTA with nothing in it) and the surviving control
+   takes the whole line rather than leaving a dead column beside it. */
+.scene--contact .contact__links,
+.scene--contact .contact__cta {
+  flex: 1 1 0;
+  min-width: 0;
+  margin-block-start: var(--sp-4);
+}
+
+.scene--contact .contact__cta {
+  display: flex;
+}
+
+.scene--contact .contact__cta > .btn {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.scene--contact .contact__links:not(:has(li)),
+.scene--contact .contact__cta:not(:has(a)) {
+  display: none;
+}
+
+/* ============================================================= 5. FOOTER === */
+/* Quiet by construction: it must never compete with the contact scene. */
+.site-footer {
+  position: relative;
+  z-index: var(--z-fg);
+}
+
+.site-footer__copy,
+.site-footer__top {
+  font-size: var(--fs-sm);
+  color: var(--text);
+}
+
+/* ========================================================== 6. HOVER ===== */
+/* Behaviour 4 â€” real pointers only. The island lift itself lives in
+   components.css; this only adds the scene-level title emphasis. */
+@media (hover: hover) and (pointer: fine) {
+  .explorer__field .island:hover .island__title {
+    color: var(--accent-strong);
+  }
+}
+
+/* ======================================================= 7. RESPONSIVE ==== */
+/* Exact breakpoints from architecture Â§8. */
+
+/* Tablet landscape â€” tighten the spreads. */
+@media (max-width: 1100px) {
+  .scene--portfolio .portfolio__inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--sp-4);
+  }
+
+  .scene--contact .contact__inner {
+    gap: var(--sp-4);
+  }
+
+  .scene--contact .contact__media {
+    height: 86%;
+  }
+}
+
+/* Tablet portrait â€” collapse both spreads to a single column. */
+@media (max-width: 860px) {
+  /* Vertical stack. The copy is pinned to the TOP and the portrait drops back
+     into normal flow, so it claims only the space left over beneath the text
+     and can never sit on top of it.
+     padding-block-end is deliberately 0: the portrait is in flow now, so the
+     scene floor IS her floor â€” she has to stand on the very bottom edge, exactly
+     like the desktop (absolutely positioned) portrait does. */
+  .scene--hero {
+    justify-content: flex-start;
+    align-items: center;
+    padding-inline: var(--scene-pad);
+    padding-block-start: clamp(76px, 16svh, 150px);
+    padding-block-end: 0;
+    text-align: center;
+    --hero-lift: 0px;
+  }
+
+  .scene--hero .hero__portrait {
+    position: relative;
+    inset: auto;
+    translate: none;
+    order: 2;
+    flex: 1 1 0%;
+    width: 100%;
+    height: auto;
+    min-height: clamp(150px, 26svh, 300px);
+    aspect-ratio: auto;
+    margin-block-start: var(--sp-3);
+    z-index: var(--z-media);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .scene--hero .hero__title,
+  .scene--hero .hero__tagline {
+    order: 1;
+  }
+
+  .scene--hero .hero__title {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .scene--hero .hero__title-main {
+    font-size: clamp(2.75rem, 15.5vw, 6rem);
+  }
+
+  /* The tagline is centred under the title. */
+  .scene--hero .hero__tagline {
+    position: relative;
+    inset: auto;
+    translate: 0 calc(-1 * var(--hero-lift));
+    width: min(100%, 42ch);
+    margin-block-start: clamp(12px, 2svh, 22px);
+    margin-inline: auto;
+    padding-inline: var(--sp-2);
+    text-align: center;
+    font-size: var(--fs-sm);
+  }
+
+  /* Back to a full-width, centred hint in the single-column stack. */
+  .scene--hero .hero__hint {
+    inset-inline: 0;
+    text-align: center;
+  }
+
+  .scene--portfolio .portfolio__inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .scene--portfolio .portfolio__info,
+  .scene--portfolio .portfolio__media,
+  .scene--portfolio:nth-of-type(even) .portfolio__info,
+  .scene--portfolio:nth-of-type(even) .portfolio__media {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .scene--portfolio .portfolio__info {
+    margin-block-start: 0;
+    max-width: 52ch;
+  }
+
+  .scene--portfolio .portfolio__media {
+    margin-block-start: var(--sp-3);
+  }
+  /* Explorer follows the same collapse: copy on top, islands beneath. */
+  .scene--explorer {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+    padding-inline: var(--scene-pad);
+    padding-block-start: clamp(64px, 4svh, 96px);
+  }
+
+  .explorer__head {
+    max-width: 52ch;
+  }
+
+  .explorer__field {
+    justify-self: stretch;
+    min-height: clamp(440px, 74svh, 820px);
+  }
+
+
+  .scene--contact .contact__inner {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: var(--sp-3);
+    text-align: center;
+  }
+
+  .scene--contact .contact__body {
+    max-width: 52ch;
+  }
+
+  .scene--contact .contact__links {
+    justify-content: center;
+  }
+
+  /* Single column: hide the cut-out portrait. */
+  .scene--contact .contact__media {
+    display: none;
+  }
+}
+
+/* Mobile â€” vertical-first composition, islands in a loose stack. */
+@media (max-width: 600px) {
+  .scene--hero {
+    --hero-lift: 0px;
+  }
+
+  .scene--hero .hero__title {
+    padding-block-end: clamp(22px, 6vw, 38px);
+  }
+
+  .scene--hero .hero__title-main {
+    font-size: clamp(2.75rem, 15.5vw, 6rem);
+  }
+
+  .scene--explorer {
+    padding-block-start: clamp(64px, 12svh, 110px);
+  }
+
+  .explorer__field {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-3);
+    min-height: 0;
+  }
+
+  /* categories.js publishes the resolved scatter as --island-x/--island-y
+     custom properties and the width as --island-w; none of them is an inline
+     left/top/width, so this plain later reset wins and reflows the islands into
+     a wrapped stack with CSS owning the size again. */
+  .explorer__field .island {
+    position: relative;
+    left: auto;
+    top: auto;
+    inset-inline-start: auto;
+    inset-block-start: auto;
+    translate: none;
+    rotate: 0deg;
+    width: clamp(132px, 40vw, 176px);
+  }
+}
+
+/* Wide displays â€” let the hero breathe. */
+@media (min-width: 1800px) {
+  .scene--portfolio .portfolio__inner {
+    gap: clamp(48px, 5vw, 110px);
+  }
+}
+
+/* Short viewports â€” keep everything reachable. */
+@media (max-height: 620px) {
+  .scene--hero .hero__title {
+    padding-block-end: clamp(22px, 3vw, 40px);
+  }
+
+  .scene--hero .hero__tagline {
+    margin-block-start: var(--sp-2);
+  }
+
+  .explorer__field {
+    /* the scatter needs vertical room to stay overlap-free on a short window,
+       so the field keeps a floor rather than collapsing to a letterbox strip */
+    min-height: clamp(360px, 60svh, 520px);
+  }
+}
+
+/* ================================================= 8. REDUCED MOTION ======= */
+/* Scroll-linked transforms are neutralised by base.css; here the staged hero
+   entrance simply resolves to its final state with no travel (behaviour 2). */
+@media (prefers-reduced-motion: reduce) {
+  .scene--hero .scene__bg--hero,
+  .scene__atmosphere,
+  .scene--hero .hero__title-main,
+  .scene--hero .hero__title-sub,
+  .scene--hero .hero__tagline,
+  .scene--hero .hero__portrait img,
+  .scene--hero .hero__hint {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .scene--hero .hero__hint.is-hidden {
+    opacity: 0 !important;
+  }
+
+  .explorer__field .island {
+    transition: none !important;
+  }
+}
+

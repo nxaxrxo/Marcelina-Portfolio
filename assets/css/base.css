@@ -1,0 +1,260 @@
+/* ============================================================================
+   base.css — modern reset, element defaults, shared utilities
+   ----------------------------------------------------------------------------
+   Contract : docs/architecture.md §8  (mandatory behaviours 1,2,3,4,7,8)
+   Visual   : docs/css-style-ruleset.md §3 (type), §10–§11 (accessible contrast)
+   Order    : tokens.css → base.css → layout.css → components.css → scenes.css
+   ============================================================================ */
+
+/* ============================================================= 1. reset ==== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-line) transparent;
+}
+
+/* Behaviour 3 — native smooth anchors only when reduced motion is NOT asked for */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100svh;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: 400;
+  line-height: var(--lh-body);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ======================================================= 2. media defaults == */
+img,
+picture,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+svg {
+  display: block;
+}
+
+img,
+video {
+  height: auto;
+}
+
+/* ============================================ 3. form control inheritance === */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+button {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* =========================================================== 4. typography == */
+/* Body ramp: plum text, generous leading, warm cream ground (ruleset §3). */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: var(--lh-tight);
+  color: var(--text);
+  text-wrap: balance;
+}
+
+h1 { font-size: var(--fs-h1); }
+h2 { font-size: var(--fs-h2); }
+h3 { font-size: var(--fs-h3); }
+
+p {
+  text-wrap: pretty;
+}
+
+ul,
+ol {
+  list-style: none;
+  padding: 0;
+}
+
+hr {
+  height: 1px;
+  border: 0;
+  background-color: var(--c-line);
+}
+
+/* ================================================================ 5. links == */
+a {
+  color: var(--accent-strong);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  text-decoration-color: var(--c-line);
+}
+
+/* Behaviour 4 — hover affordances only where a real pointer exists */
+@media (hover: hover) and (pointer: fine) {
+  a:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+/* ============================================================ 6. selection == */
+::selection {
+  background-color: var(--c-blush);
+  color: var(--c-ink);
+}
+
+/* ============================================================ 7. scrollbar == */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: var(--r-pill);
+  background-color: var(--c-line);
+  background-clip: content-box;
+}
+
+/* =============================================================== 8. focus === */
+/* Behaviour 1 — one global ring; NO rule anywhere may remove it. */
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* Behaviour 7 — [hidden] always wins over any display/visibility toggle. */
+[hidden] {
+  display: none !important;
+}
+
+/* =========================================================== 9. utilities == */
+
+/* Section eyebrows / labels (ruleset §3 label row). */
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--accent-strong);
+}
+
+/* First focusable element in the document — parked off-canvas until focused. */
+.skip-link {
+  position: fixed;
+  inset-block-start: var(--sp-2);
+  inset-inline-start: var(--sp-2);
+  z-index: var(--z-overlay);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  background-color: var(--c-warm-white);
+  color: var(--accent-strong);
+  box-shadow: var(--shadow-md);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(calc(-100% - var(--sp-4)));
+  transition: transform var(--dur-mid) var(--ease-out);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Behaviour 8 — opt-in, transient compositing hint. JS adds this class only
+   while an element is actually animating (never a blanket will-change). */
+.is-animating {
+  will-change: transform, opacity;
+}
+
+/* ======================================================= 10. reduced motion = */
+/* Behaviour 2 — kill transforms / idle float / long transitions, keep short
+   opacity transitions (capped at --dur-fast). */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 120ms;
+    --dur-mid: 160ms;
+    --dur-slow: 200ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: var(--dur-fast) !important;
+    transition-delay: 0ms !important;
+  }
+
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  /* Parallax layers and idle-drift orbs stop moving entirely. */
+  [data-parallax],
+  .orb {
+    transform: none !important;
+    animation: none !important;
+  }
+}

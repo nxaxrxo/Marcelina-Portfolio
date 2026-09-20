@@ -1,0 +1,1065 @@
+﻿/* ============================================================================
+   components.css â€” reusable visual components
+   ----------------------------------------------------------------------------
+   Contract : docs/architecture.md Â§8 (token names, breakpoints, mandatory
+              behaviours), Â§3 (island + portfolio markup), Â§9 (blob presets)
+   Visual   : docs/css-style-ruleset.md Â§4 (buttons), Â§5 (surfaces), Â§7 (imagery),
+              Â§8 (shape/space), Â§9 (motion), Â§10â€“Â§11 (contrast, restraint)
+   Markup   : ground truth is the markup written by assets/js/*
+              â€” portfolio.js  â†’ .portfolio__specs (.dt/.dd pairs)
+              â€” categories.js â†’ .island + .island--blob-0N + .island--size-*
+              â€” media.js      â†’ .media__frame family (all five media types)
+              â€” carousel.js   â†’ .carousel family (stage/track/card/controls)
+              â€” lightbox.js   â†’ .lightbox family (ui buttons carry NO class â€”
+                                they are selected by their data-* hooks)
+              â€” contact.js    â†’ .contact__links
+   Order    : tokens.css â†’ base.css â†’ layout.css â†’ components.css â†’ scenes.css
+   NOTE     : scene composition (hero / explorer field / portfolio columns /
+              contact split) belongs to scenes.css and is intentionally NOT
+              touched here. This file owns the components only.
+   ============================================================================ */
+
+/* ============================================================ 1. buttons === */
+/* Ruleset Â§4. `.btn` is the primary CTA by default (contact.js emits a bare
+   `.btn`); `.btn--ghost` is the portfolio prev/next arrow (portfolio.js). */
+
+.btn {
+  --btn-bg: var(--accent);
+  --btn-fg: var(--c-warm-white);
+  --btn-bd: transparent;
+  --btn-shadow: var(--shadow-sm);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-1);
+  min-height: 48px;
+  padding: 12px var(--sp-3);
+  border: 1px solid var(--btn-bd);
+  border-radius: var(--r-pill);
+  background-color: var(--btn-bg);
+  color: var(--btn-fg);
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: var(--btn-shadow);
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+/* Primary â€” Rose ground, warm-white text, subtle lift. */
+.btn--primary {
+  --btn-bg: var(--accent);
+  --btn-fg: var(--c-warm-white);
+}
+
+/* Secondary â€” same dimensions, cream ground, rose hairline + rose text. */
+.btn--secondary {
+  --btn-bg: var(--surface);
+  --btn-fg: var(--accent-strong);
+  --btn-bd: var(--accent);
+  --btn-shadow: none;
+}
+
+/* Tertiary â€” text-only action, rose deep, no chrome. */
+.btn--tertiary {
+  --btn-bg: transparent;
+  --btn-fg: var(--accent-strong);
+  --btn-bd: transparent;
+  --btn-shadow: none;
+
+  min-height: 0;
+  padding: 0;
+}
+
+/* Ghost â€” round icon control: the â€¹ / â€º project stepper. */
+.btn--ghost {
+  --btn-bg: var(--surface);
+  --btn-fg: var(--accent-strong);
+  --btn-bd: var(--c-line);
+  --btn-shadow: none;
+
+  width: 46px;
+  min-height: 0;
+  height: 46px;
+  padding: 0;
+  font-size: 1.4rem;
+  font-weight: 500;
+}
+
+/* Active â€” return to base, soften the shadow (ruleset Â§4). */
+.btn:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ============================================================= 2. eyebrow === */
+/* base.css sets the type; here we add the editorial lead-in rule. Kept
+   additive so no scene/utility definition is re-declared. */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+.eyebrow::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 1.75rem;
+  height: 2px;
+  border-radius: var(--r-pill);
+  background-image: linear-gradient(90deg, var(--accent), var(--c-lavender));
+}
+
+/* ============================================================= 3. islands === */
+/* categories.js nesting: a.island > span.island__media > img.island__img
+                                  > span.island__label > title + count
+   The blob clip-path is applied to the INNER .island__media, never to the
+   .island anchor: an element carrying clip-path cannot paint its own
+   box-shadow, so the anchor stays unclipped and casts the depth shadow for
+   the whole island (a wrapper casting, per the brief). */
+
+.island {
+  /* each island publishes its own pastel family; the map below keys them by the
+     data-category-id categories.js writes, and the surface + label read them */
+  --island-tint: var(--c-blush);
+  --island-tint-2: var(--c-lavender);
+
+  position: absolute;
+  inset-block-start: var(--island-y, 50%);
+  inset-inline-start: var(--island-x, 50%);
+  translate: -50% -50%;
+  rotate: var(--island-rot, 0deg);
+  /* per-category stacking: --island-z lets a category step above the shared
+     decorative layer (see the per-category block below); any category that does
+     not set it keeps the default. */
+  z-index: var(--island-z, var(--z-deco));
+  display: grid;
+  grid-template-columns: 1fr;
+  width: clamp(9rem, 15vw, 14rem);
+  color: var(--text);
+  text-decoration: none;
+  /* the label measures itself against the island, so every size class keeps the
+     same label-to-silhouette proportion (no per-breakpoint label maths) */
+  container-type: inline-size;
+  /* three plum depth layers â€” a tight contact edge, the lifted body, then the
+     wide ambient falloff â€” so the object reads as floating above the scene
+     instead of as a soft smudge */
+  filter:
+    drop-shadow(0 1px 1px color-mix(in srgb, var(--c-plum) 13%, transparent))
+    drop-shadow(0 7px 13px color-mix(in srgb, var(--c-plum) 13%, transparent))
+    drop-shadow(0 22px 38px color-mix(in srgb, var(--c-plum) 18%, transparent));
+  transition:
+    scale var(--dur-mid) var(--ease-out),
+    filter var(--dur-mid) var(--ease-out);
+}
+
+/* ---- per-category tint families ------------------------------------------- */
+/* content.js assigns every category a tint family (blush | lavender | peach |
+   mint | periwinkle | butter | rose) and data.js keeps it; tokens.css already
+   publishes each family as a --tint/--tint-2 pair, but the explorer scene only
+   ever carries the single warm-white explorer family, so each island
+   re-publishes its own pair here â€” same tokens, same order as content.js. */
+.island[data-category-id="pixel-art"]    { --island-tint: var(--c-blush);      --island-tint-2: var(--c-rose); }
+.island[data-category-id="3d-modelling"] { --island-tint: var(--c-lavender);   --island-tint-2: var(--c-periwinkle); }
+.island[data-category-id="paintings"]    { --island-tint: var(--c-peach);      --island-tint-2: var(--c-butter); }
+.island[data-category-id="sketches"]     { --island-tint: var(--c-mint);       --island-tint-2: var(--c-periwinkle); }
+.island[data-category-id="photography"]  { --island-tint: var(--c-periwinkle); --island-tint-2: var(--c-lavender); }
+.island[data-category-id="vector-art"]   { --island-tint: var(--c-butter);     --island-tint-2: var(--c-peach); }
+.island[data-category-id="level-design"] { --island-tint: var(--c-rose);       --island-tint-2: var(--c-blush); }
+
+/* ---- per-category stacking ------------------------------------------------ */
+/* The islands share one scatter canvas, so where two blobs overlap, which one
+   sits on top is set here, not by DOM order. Each category steps up from the
+   shared decorative layer; owner's order, lowest to highest:
+   Photography < Card Design < Pixel Art < Sketches and Paintings < Level Design. */
+.island[data-category-id="photography"]  { --island-z: var(--z-deco); }
+.island[data-category-id="sketches"]     { --island-z: calc(var(--z-deco) + 1); }
+.island[data-category-id="pixel-art"]    { --island-z: calc(var(--z-deco) + 2); }
+.island[data-category-id="paintings"]    { --island-z: calc(var(--z-deco) + 3); }
+.island[data-category-id="level-design"] { --island-z: calc(var(--z-deco) + 4); }
+
+/* ---- size variants -------------------------------------------------------- */
+.island--size-xl { width: clamp(14rem, 24vw, 23rem); }
+.island--size-lg { width: clamp(12rem, 21vw, 20rem); }
+.island--size-md { width: clamp(10rem, 17vw, 16rem); }
+.island--size-sm { width: clamp(7.5rem, 13vw, 11rem); }
+
+/* ---- blob presets --------------------------------------------------------- */
+/* One <clipPath id="blob-0N"> is rendered per preset by categories.js into
+   [data-blob-defs]; each preset class clips the media silhouette. */
+.island--blob-01 .island__media { clip-path: url(#blob-01); }
+.island--blob-02 .island__media { clip-path: url(#blob-02); }
+.island--blob-03 .island__media { clip-path: url(#blob-03); }
+.island--blob-04 .island__media { clip-path: url(#blob-04); }
+.island--blob-05 .island__media { clip-path: url(#blob-05); }
+.island--blob-06 .island__media { clip-path: url(#blob-06); }
+.island--blob-07 .island__media { clip-path: url(#blob-07); }
+
+/* Each preset gives the label exactly the room its own waist allows at the
+   label's band (the presets are 57%-93% of the box wide through the middle), so
+   every pill is as wide as its island can carry and never wider. */
+.island--blob-01 .island__label { max-width: 74%; }
+.island--blob-02 .island__label { max-width: 66%; }
+.island--blob-03 .island__label { max-width: 56%; }
+.island--blob-04 .island__label { max-width: 76%; }
+.island--blob-05 .island__label { max-width: 68%; }
+.island--blob-06 .island__label { max-width: 78%; }
+.island--blob-07 .island__label { max-width: 72%; }
+
+.island__media {
+  grid-area: 1 / 1;
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  /* organic fallback silhouette if no preset class is present */
+  border-radius: 46% 54% 52% 48% / 52% 46% 54% 48%;
+  /* considered pastel surface: the family fill runs corner to corner, a warm
+     sheen lifts the top-left shoulder and a faint plum shade grounds the
+     bottom-right, so the blob reads as a lit, tactile object with or without an
+     image on top of it. --tint is only the scene fallback: the island family
+     wins whenever the map above matched. */
+  background-color: var(--island-tint);
+  background-image:
+    radial-gradient(92% 78% at 26% 14%,
+      color-mix(in srgb, var(--c-warm-white) 78%, transparent) 0%,
+      transparent 62%),
+    radial-gradient(118% 94% at 88% 100%,
+      color-mix(in srgb, var(--c-plum) 10%, transparent) 0%,
+      transparent 64%),
+    linear-gradient(152deg,
+      color-mix(in srgb, var(--island-tint) 84%, var(--c-warm-white)) 0%,
+      var(--island-tint) 52%,
+      color-mix(in srgb, var(--island-tint-2) 52%, var(--island-tint)) 100%);
+}
+
+.island__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+/* Until real photography is dropped in, every island falls back to the opaque
+   placeholder SVG â€” which would hide the island's own pastel family and leave
+   seven identical shapes. Let the family surface carry the object and keep the
+   placeholder only as a faint texture (categories.js marks it data-placeholder
+   when the cover 404s; the src test covers the no-cover case too). */
+.island__img[data-placeholder="1"],
+.island__img[src*="_placeholder"] {
+  opacity: 0.1;
+}
+
+/* Skull cover (paintings) is a tall portrait (1196x1617) - fit the whole
+   image inside the square island so the entire skull stays visible. */
+.island[data-category-id="paintings"] .island__img {
+  object-fit: contain;
+}
+
+.island__label {
+  grid-area: 1 / 1;
+  /* centred on the blob's widest band â€” the placeholder slot is centred too, and
+     the old bottom-anchored pill hung past the silhouette into the island below.
+     The 56% guard keeps the pill inside every preset's waist at every size. */
+  align-self: center;
+  justify-self: center;
+  z-index: 1;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  max-width: 56%;
+  padding: var(--sp-1) clamp(6px, 5cqw, 16px);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  /* near-opaque warm-white plate: the label stays legible over an image, over
+     the pastel surface or over the bare placeholder */
+  background-color: color-mix(in srgb, var(--c-warm-white) 94%, transparent);
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+  transition: transform var(--dur-mid) var(--ease-out);
+}
+
+.island__title {
+  font-family: var(--font-display);
+  /* scales with the island, so the title stays one line at every size class */
+  font-size: clamp(0.6875rem, 6.4cqw, var(--fs-h3));
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.island__count {
+  /* small islands carry a pill only ~80px wide: the floor is trimmed and the
+     tracking tightened so "3 PROJECTS" stays on one line at 390px */
+  font-size: clamp(0.5625rem, 3.5cqw, var(--fs-label));
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text);
+  opacity: 0.7;
+}
+
+/* ========================================================= 4. media frames == */
+/* media.js emits .media__frame + one modifier per type; carousel.js stretches
+   the frame with inline width/height:100% inside each card. Every box keeps an
+   explicit aspect-ratio so a missing image never collapses the layout. */
+
+/* The frame is a contained, rounded plate that HUGS the active image:
+   carousel.js fits the stage to the picture's own ratio inside a bounded cap,
+   so this box always equals the image - no letterbox, no pink bars. The
+   neutral surface (never the pink tint) means even a transient gap while the
+   image loads is invisible rather than a coloured border. */
+.media__frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 10px;
+  background-color: var(--surface);
+  color: var(--text);
+  text-align: center;
+  isolation: isolate;
+  box-shadow: var(--shadow-sm);
+}
+
+.media__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* contain, not cover: the whole picture is always visible with zero crop and
+     zero overflow regardless of its aspect ratio. The stage height is sized to
+     the active slide's natural ratio by carousel.js. */
+  object-fit: contain;
+}
+
+.media__poster {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.media__video {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: color-mix(in srgb, var(--c-plum) 90%, transparent);
+}
+
+.media__embed {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Centred caption pill â€” sits exactly on the label slot of _placeholder.svg so
+   an empty frame reads as intentional artwork, never as a broken image. */
+.media__label {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  translate: -50% -50%;
+  z-index: 2;
+  max-width: 80%;
+  padding: var(--sp-1) var(--sp-2);
+  border: 1px solid color-mix(in srgb, var(--c-plum) 10%, transparent);
+  border-radius: var(--r-pill);
+  background-color: color-mix(in srgb, var(--c-warm-white) 74%, transparent);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  color: var(--text);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* video / youtube â€” play affordance */
+.media__play {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  translate: -50% -50%;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: clamp(52px, 7vw, 68px);
+  height: clamp(52px, 7vw, 68px);
+  border-radius: var(--r-pill);
+  background-color: color-mix(in srgb, var(--c-warm-white) 84%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: var(--accent-strong);
+  box-shadow: var(--shadow-md);
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    scale var(--dur-fast) var(--ease-out);
+}
+
+.media__play-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  translate: 2px 0;
+}
+
+.media__frame.is-playing .media__play {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.media__facade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.media__facade .media__poster {
+  z-index: 0;
+}
+
+.media__facade .media__play-icon {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: clamp(52px, 7vw, 68px);
+  height: clamp(52px, 7vw, 68px);
+  border-radius: var(--r-pill);
+  background-color: color-mix(in srgb, var(--c-warm-white) 84%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: var(--accent-strong);
+  box-shadow: var(--shadow-md);
+  translate: 2px 0;
+  transition: scale var(--dur-fast) var(--ease-out);
+}
+
+/* external â€” a finished link card, layout-safe with no imagery at all */
+.media__frame--external {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  height: 100%;
+  padding: var(--sp-4);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.media__external-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-inline: auto;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  background-color: var(--surface);
+  color: var(--accent-strong);
+  font-size: 1.25rem;
+  line-height: 1;
+  box-shadow: var(--shadow-sm);
+}
+
+.media__external-label {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  line-height: 1.15;
+  color: var(--text);
+}
+
+.media__external-url {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text);
+  opacity: 0.75;
+  word-break: break-word;
+}
+
+.media__external-action {
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--accent-strong);
+}
+
+/* failed load â€” media.js swaps in the placeholder and flags the frame */
+.media__frame--failed {
+  border-color: var(--c-line);
+}
+
+/* ============================================================ 5. carousel === */
+/* carousel.js: root gains .carousel; cards are absolutely positioned inside
+   .carousel__stage (JS sets position:relative inline). THE STAGE MUST HAVE AN
+   EXPLICIT ASPECT-RATIO â€” without it every absolutely-positioned card has no
+   height to resolve against and the whole carousel collapses to zero. */
+
+.carousel {
+  position: relative;
+  display: grid;
+  gap: var(--sp-3);
+  width: 100%;
+}
+
+/* The default height is the JS default ratio (4/3) so a carousel with no
+   loaded media never collapses. As each slide loads, carousel.js overrides the
+   inline height to the image's real aspect ratio and transitions that height. */
+/* Constant-height slot: every slide is fitted inside this reserved space, so
+   advancing the slideshow never changes the page height. The stage (the rounded
+   frame) hugs the active picture and is centred inside the slot. */
+.carousel__viewport {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel__stage {
+  isolation: isolate;
+  position: relative;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  aspect-ratio: 4 / 3;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
+  will-change: width, height;
+}
+
+.carousel__stage.is-dragging {
+  cursor: grabbing;
+}
+
+/* The track exists only as a semantic grouping (JS sets display:contents). */
+.carousel__track {
+  display: contents;
+}
+
+.carousel__card {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+}
+
+.carousel__card .media__frame {
+  width: 100%;
+  height: 100%;
+  box-shadow: var(--shadow-md);
+}
+
+.carousel__card.is-active .media__frame {
+  box-shadow: var(--shadow-lg);
+}
+
+.carousel__controls {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+}
+
+.carousel__btn {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  background-color: var(--surface);
+  color: var(--accent-strong);
+  font-size: 1.4rem;
+  font-weight: 500;
+  line-height: 1;
+  box-shadow: var(--shadow-sm);
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.carousel__dots {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+.carousel__dot {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border-radius: var(--r-pill);
+  background-color: color-mix(in srgb, var(--c-plum) 18%, transparent);
+  transition:
+    width var(--dur-mid) var(--ease-out),
+    background-color var(--dur-mid) var(--ease-out);
+}
+
+.carousel__dot.is-active {
+  width: 28px;
+  background-color: var(--accent);
+}
+
+.carousel__counter,
+.portfolio__counter {
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--text);
+}
+
+/* ===================================================== 6. project spec list = */
+/* portfolio.js writes dt/dd pairs straight into the <dl>; an empty list simply
+   renders nothing rather than a broken box. */
+.portfolio__specs {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, auto) 1fr;
+  column-gap: var(--sp-3);
+  row-gap: 0;
+  max-width: 34rem;
+  margin-block-start: var(--sp-3);
+}
+
+.portfolio__specs dt,
+.portfolio__specs dd {
+  padding-block: var(--sp-1);
+  border-top: 1px solid var(--c-line);
+}
+
+.portfolio__specs dt {
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text);
+  opacity: 0.66;
+}
+
+.portfolio__specs dd {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ======================================================= 7. contact links == */
+/* contact.js fills [data-contact-links] with <li><a>; the static fallback in
+   index.html uses the same shape. */
+.contact__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-2);
+  margin-block-start: var(--sp-3);
+}
+
+/* One link = one half of the action pair (scenes.css Â§4 owns the pairing). Both
+   the item and its anchor stretch, so a single pill fills its half edge to edge
+   and matches the CTA's height beside it instead of hugging its own label. */
+.contact__links li {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.contact__links a {
+  display: inline-flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-1);
+  min-height: 44px;
+  padding: var(--sp-1) var(--sp-3);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  background-color: var(--surface);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.contact__links a::after {
+  content: "\2192";
+  color: var(--accent-strong);
+  font-weight: 700;
+  transition: translate var(--dur-fast) var(--ease-out);
+}
+
+/* =========================================================== 8. lightbox ==== */
+/* The five .lightbox__ui controls carry no class in the contract markup â€” they
+   are addressed by their data-* hooks. Their literal "â€¦" content is a stub; the
+   accessible name lives on aria-label, so the glyph is replaced by an icon. */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-lightbox);
+  display: flex;
+  flex-direction: column;
+  background-color: color-mix(in srgb, var(--c-plum) 86%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
+  color: var(--c-warm-white);
+}
+
+.lightbox.is-open {
+  animation: mp-lightbox-in var(--dur-mid) var(--ease-out);
+}
+
+@keyframes mp-lightbox-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.lightbox__stage {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  overflow: hidden;
+  padding: clamp(16px, 4vw, 56px);
+  touch-action: none;
+}
+
+.lightbox__img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  cursor: zoom-in;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.lightbox__img.is-zoomed {
+  cursor: grab;
+}
+
+.lightbox__img.is-placeholder {
+  box-shadow: none;
+}
+
+.lightbox__extra {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: inherit;
+}
+
+.lightbox__video {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.lightbox__embed {
+  width: min(100%, 1280px);
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.lightbox__link {
+  color: var(--c-warm-white);
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  text-decoration: none;
+}
+
+.lightbox__link-url {
+  display: block;
+  margin-block-start: var(--sp-1);
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  color: color-mix(in srgb, var(--c-warm-white) 68%, transparent);
+}
+
+.lightbox__ui {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+}
+
+.lightbox__ui button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--c-warm-white) 34%, transparent);
+  border-radius: var(--r-pill);
+  background-color: color-mix(in srgb, var(--c-warm-white) 12%, transparent);
+  color: var(--c-warm-white);
+  font-size: 1.35rem;
+  line-height: 1;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.lightbox__ui button[disabled] {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Rose focus ring is too low-contrast on the plum veil â€” lavender is allowed
+   by the ruleset for focus and reads cleanly here. */
+.lightbox__ui button:focus-visible,
+.lightbox__link:focus-visible {
+  outline-color: var(--c-lavender);
+}
+
+.lightbox__counter {
+  min-width: 4rem;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  text-align: center;
+  color: color-mix(in srgb, var(--c-warm-white) 84%, transparent);
+}
+
+.lightbox__hint {
+  padding: var(--sp-2) var(--sp-3) var(--sp-3);
+  font-size: var(--fs-label);
+  line-height: 1.5;
+  text-align: center;
+  color: color-mix(in srgb, var(--c-warm-white) 64%, transparent);
+}
+
+/* =============================================== 9. hover (pointer-gated) == */
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn--primary:hover {
+    --btn-bg: var(--accent-strong);
+  }
+
+  .btn--secondary:hover {
+    --btn-bg: var(--surface-2);
+  }
+
+  .btn--tertiary:hover {
+    transform: none;
+    box-shadow: none;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  .btn--ghost:hover {
+    --btn-bg: var(--surface-2);
+    --btn-bd: var(--accent);
+  }
+
+  .island:hover {
+    scale: 1.02;
+    filter:
+      drop-shadow(0 1px 1px color-mix(in srgb, var(--c-plum) 14%, transparent))
+      drop-shadow(0 12px 20px color-mix(in srgb, var(--c-plum) 16%, transparent))
+      drop-shadow(0 30px 50px color-mix(in srgb, var(--c-plum) 22%, transparent));
+  }
+
+  .island:hover .island__img {
+    transform: scale(1.05);
+  }
+
+  .island:hover .island__label {
+    transform: translateY(-2px);
+  }
+
+  .media__play:hover,
+  .media__facade:hover .media__play-icon {
+    scale: 1.06;
+    background-color: var(--c-warm-white);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .media__frame--external:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+  }
+
+  .carousel__btn:hover {
+    background-color: var(--surface-2);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .carousel__dot:hover {
+    background-color: color-mix(in srgb, var(--c-plum) 34%, transparent);
+  }
+
+  .carousel__dot.is-active:hover {
+    background-color: var(--accent-strong);
+  }
+
+  .contact__links a:hover {
+    background-color: var(--surface-2);
+    border-color: var(--accent);
+    color: var(--accent-strong);
+    transform: translateY(-2px);
+  }
+
+  .contact__links a:hover::after {
+    translate: 2px 0;
+  }
+
+  .lightbox__ui button:not([disabled]):hover {
+    background-color: color-mix(in srgb, var(--c-warm-white) 24%, transparent);
+    border-color: color-mix(in srgb, var(--c-warm-white) 52%, transparent);
+    transform: translateY(-2px);
+  }
+
+  .lightbox__link:hover {
+    color: var(--c-blush);
+  }
+}
+
+/* ============================================ 10. reduced motion overrides == */
+/* base.css globally caps transition durations; these neutralise the transform
+   affordances so no component moves when motion is not wanted. */
+@media (prefers-reduced-motion: reduce) {
+  .island:hover {
+    scale: 1;
+  }
+
+  .island:hover .island__img,
+  .island:hover .island__label {
+    transform: none;
+  }
+
+  .island,
+  .island__img,
+  .island__label,
+  .media__play,
+  .media__facade .media__play-icon,
+  .carousel__btn,
+  .carousel__dot,
+  .contact__links a,
+  .contact__links a::after,
+  .btn {
+    transition: none;
+  }
+}
+
+/* =============================================== 11. responsive refinements == */
+/* Explorer field â€” mobile stack rhythm. The scene keeps the flex-stack itself
+   (scenes.css); the island family owns the rhythm between its own objects, so
+   the mobile row gap is set here. */
+@media (max-width: 600px) {
+  [data-scene="explorer"] .explorer__field {
+    column-gap: var(--sp-3);
+    row-gap: var(--sp-4);
+  }
+}
+
+@media (max-width: 1100px) {
+  .island--size-xl { width: clamp(11rem, 20vw, 18rem); }
+  .island--size-lg { width: clamp(9rem, 17vw, 15rem); }
+  .island--size-md { width: clamp(7.5rem, 13vw, 12rem); }
+  .island--size-sm { width: clamp(6rem, 10vw, 9rem); }
+}
+
+@media (max-width: 600px) {
+  .btn {
+    min-height: 44px;
+    padding: 11px var(--sp-3);
+  }
+
+  .btn--ghost,
+  .carousel__btn,
+  .lightbox__ui button {
+    width: 42px;
+    height: 42px;
+  }
+
+  .carousel__stage {
+  isolation: isolate;
+    aspect-ratio: 1 / 1;
+  }
+
+  .portfolio__specs {
+    grid-template-columns: minmax(4.5rem, auto) 1fr;
+  }
+
+  .contact__links a {
+    min-height: 42px;
+  }
+}
+
+@media (max-height: 620px) {
+  .carousel__stage {
+  isolation: isolate;
+    aspect-ratio: 16 / 9;
+  }
+}
+

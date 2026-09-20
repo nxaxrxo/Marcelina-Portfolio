@@ -1,0 +1,539 @@
+/* ============================================================================
+   layout.css — app shell, header + nav, scene frame, footer, responsive system
+   ----------------------------------------------------------------------------
+   Contract : docs/architecture.md §3 (DOM/markup), §8 (breakpoints, behaviours
+              3,4,5,6), §9 (island clip-paths live in scenes.css)
+   Visual   : docs/css-style-ruleset.md (60/20/10/10 ratio, generous whitespace)
+   Order    : tokens.css → base.css → layout.css → components.css → scenes.css
+   ============================================================================ */
+
+/* ============================================== 1. document + anchor offset */
+html {
+  /* Behaviour 3 — anchors clear the fixed header. */
+  scroll-padding-top: calc(var(--header-h) + 8px);
+}
+
+body {
+  /* Behaviour 6 — no horizontal overflow at any width. */
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+/* ================================================================ 2. shell == */
+.app {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100svh;
+  isolation: isolate;
+}
+
+.app__main {
+  position: relative;
+  z-index: var(--z-fg);
+  flex: 1 0 auto;
+  background-color: var(--bg);
+}
+
+/* ====================================================== 3. scroll progress == */
+.scroll-bar {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  z-index: calc(var(--z-header) + 1);
+  width: 100%;
+  height: 3px;
+  background-color: var(--c-line);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* JS writes the live value as an inline transform: scaleX(progress).
+   Fallback value keeps the bar empty before the first frame. */
+[data-scroll-bar-fill] {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  background-image: linear-gradient(90deg, var(--c-rose), var(--c-rose-deep));
+}
+
+/* ================================================================ 4. header == */
+/* Default state = off-canvas (the hero has no header; it appears on scroll).
+   State classes toggled by MP.header.setVisible(): .is-visible / .is-hidden,
+   plus .is-scrolled for the condensed treatment. */
+.site-header {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: var(--z-header);
+  background-color: var(--c-cream);
+  border-bottom: 1px solid transparent;
+  transform: translateY(-100%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    transform var(--dur-mid) var(--ease-out),
+    opacity var(--dur-mid) var(--ease-out),
+    background-color var(--dur-mid) var(--ease-out),
+    border-color var(--dur-mid) var(--ease-out),
+    visibility 0s linear var(--dur-mid);
+}
+
+.site-header.is-visible {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+.site-header.is-hidden {
+  transform: translateY(-100%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Condensed treatment once the page has moved (plan §9 "subtle backdrop"). */
+.site-header.is-scrolled {
+  background-color: color-mix(in srgb, var(--c-cream) 88%, transparent);
+  -webkit-backdrop-filter: blur(10px) saturate(1.15);
+  backdrop-filter: blur(10px) saturate(1.15);
+  border-bottom-color: var(--c-line);
+  box-shadow: var(--shadow-sm);
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  width: 100%;
+  max-width: var(--max-w);
+  height: var(--header-h);
+  margin-inline: auto;
+  padding-inline: var(--scene-pad);
+}
+
+.brand {
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+/* ================================================================ 5. nav ==== */
+.nav__list {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+.nav__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--r-pill);
+  background: none;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out),
+              background-color var(--dur-fast) var(--ease-out);
+}
+
+/* Current section — header.js adds .is-current + aria-current (never colour alone) */
+.nav__link.is-current,
+.nav__link[aria-current="true"],
+.nav__link[aria-current="page"],
+.nav__menu-link.is-current,
+.nav__menu-link[aria-current="true"],
+.mobile-nav__link.is-current,
+.mobile-nav__link[aria-current="true"] {
+  background-color: var(--surface-2);
+  color: var(--accent-strong);
+}
+
+/* "My Works" dropdown */
+.nav__group {
+  position: relative;
+}
+
+.nav__menu {
+  position: absolute;
+  inset-block-start: calc(100% + var(--sp-1));
+  inset-inline-start: 50%;
+  z-index: var(--z-header);
+  min-width: 15rem;
+  max-width: min(80vw, 20rem);
+  display: grid;
+  gap: 2px;
+  padding: var(--sp-2);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, -6px);
+  transition: opacity var(--dur-fast) var(--ease-out),
+              transform var(--dur-fast) var(--ease-out),
+              visibility 0s linear var(--dur-fast);
+}
+
+.nav__group.is-open .nav__menu,
+.nav__group .nav__link[aria-expanded="true"] + .nav__menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+  transition-delay: 0s;
+}
+
+/* Transparent hover bridge across the button→panel gap (header.js opens the
+   menu on the group's mouseenter, so the pointer must never leave the group). */
+.nav__menu::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: calc(-1 * var(--sp-2));
+  height: var(--sp-2);
+}
+
+/* header.js generates these links with the .nav__menu-link / .nav__menu-item classes */
+.nav__menu-link {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 40px;
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out),
+              background-color var(--dur-fast) var(--ease-out);
+}
+
+/* Hamburger — hidden on desktop, shown ≤ 860px */
+.nav-toggle {
+  display: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  background-color: var(--surface);
+  color: var(--text);
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.nav-toggle__box {
+  display: grid;
+  gap: 5px;
+  width: 22px;
+}
+
+.nav-toggle__box i {
+  display: block;
+  height: 2px;
+  border-radius: var(--r-pill);
+  background-color: currentColor;
+  transition: transform var(--dur-fast) var(--ease-out),
+              opacity var(--dur-fast) var(--ease-out);
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle__box i:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle__box i:nth-child(2) {
+  opacity: 0;
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle__box i:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ========================================================== 6. mobile nav == */
+/* Sits just under the header so the toggle stays reachable to close it.
+   `[hidden]` (behaviour 7) keeps it out of the tab order while closed. */
+.mobile-nav {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-header) - 1);
+  display: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: calc(var(--header-h) + var(--sp-4)) var(--scene-pad) var(--sp-5);
+  background-color: var(--bg);
+}
+
+.mobile-nav__inner {
+  width: min(100%, 30rem);
+  margin-inline: auto;
+}
+
+.mobile-nav__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+/* header.js generates this structure: __item / __group / __label / __sublist */
+.mobile-nav__link {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 52px;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-md);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out);
+}
+
+.mobile-nav__label {
+  display: block;
+  padding: var(--sp-3) var(--sp-3) var(--sp-1);
+  color: var(--accent-strong);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.mobile-nav__sublist {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Secondary level: mauve is only legal at >= 15px (behaviour 10), and
+   --fs-body bottoms out at 0.9375rem = 15px. */
+.mobile-nav__sublist .mobile-nav__link {
+  min-height: 44px;
+  padding-inline-start: var(--sp-5);
+  color: var(--text-soft);
+  font-size: var(--fs-body);
+}
+
+/* Gentle entrance; base.css caps this to 1ms under reduced motion. */
+@keyframes mp-mobile-nav-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobile-nav.is-open {
+  animation: mp-mobile-nav-in var(--dur-mid) var(--ease-out);
+}
+
+/* =============================================================== 7. scenes == */
+.scene {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Behaviour 5 — never a bare 100vh. */
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: var(--scene-pad);
+  background-color: var(--bg);
+  isolation: isolate;
+}
+
+/* Generic tinted background layer. scenes.css layers gradients/atmosphere on
+   top; this guarantees a pastel family even with no scene CSS present. */
+.scene__bg {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-bg);
+  background-color: var(--tint);
+  pointer-events: none;
+}
+
+.scenes-root {
+  position: relative;
+  display: block;
+}
+
+/* =============================================================== 8. footer == */
+.site-footer {
+  position: relative;
+  z-index: var(--z-fg);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3) var(--sp-5);
+  padding: var(--sp-5) var(--scene-pad);
+  border-top: 1px solid var(--c-line);
+  background-color: var(--bg-alt);
+  color: var(--text);
+  font-size: var(--fs-sm);
+}
+
+.site-footer__copy {
+  max-width: 60ch;
+}
+
+.site-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-4);
+}
+
+.site-footer__links a,
+.site-footer__top {
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.site-footer__top {
+  padding: var(--sp-1) var(--sp-3);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  background-color: var(--surface);
+}
+
+/* ========================================== 9. clip-path defs container ==== */
+.svg-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ==================================================== 10. hover (gated) ==== */
+/* Behaviour 4 — desktop pointers only. */
+@media (hover: hover) and (pointer: fine) {
+  .brand:hover {
+    color: var(--accent-strong);
+  }
+
+  .nav__link:hover {
+    background-color: var(--surface-2);
+    color: var(--accent-strong);
+  }
+
+  .nav__menu-link:hover,
+  .mobile-nav__link:hover {
+    background-color: var(--surface-2);
+    color: var(--accent-strong);
+  }
+
+  .nav-toggle:hover {
+    background-color: var(--surface-2);
+  }
+
+  .site-footer__links a:hover {
+    color: var(--accent-strong);
+    text-decoration-line: underline;
+  }
+
+  .site-footer__top:hover {
+    border-color: var(--accent);
+    color: var(--accent-strong);
+  }
+}
+
+/* ================================================= 11. responsive system === */
+/* Exact breakpoints from architecture §8. */
+
+/* Wide desktops — let the cinematic composition breathe. */
+@media (min-width: 1800px) {
+  :root {
+    --max-w: 1680px;
+    --scene-pad: clamp(64px, 6vw, 128px);
+  }
+}
+
+/* Tablet landscape — reduce scale + density, keep the composition. */
+@media (max-width: 1100px) {
+  :root {
+    --header-h: 68px;
+    --scene-pad: clamp(24px, 4.2vw, 64px);
+  }
+}
+
+/* Tablet portrait — swap to the compact nav. */
+@media (max-width: 860px) {
+  :root {
+    --header-h: 64px;
+    --scene-pad: clamp(20px, 5vw, 44px);
+  }
+
+  .nav {
+    display: none;
+  }
+
+  .nav-toggle {
+    display: grid;
+  }
+
+  .mobile-nav {
+    display: block;
+  }
+}
+
+/* Mobile — vertical stack, full-width media, tight nav. */
+@media (max-width: 600px) {
+  :root {
+    --header-h: 58px;
+    --scene-pad: 20px;
+    --max-w: 100%;
+  }
+
+  .site-header__inner {
+    gap: var(--sp-2);
+  }
+
+  .brand {
+    font-size: var(--fs-body);
+  }
+
+  .site-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .mobile-nav__inner {
+    width: 100%;
+  }
+}
+
+/* Short viewports (e.g. 1280x560) — top-align scenes so nothing is unreachable. */
+@media (max-height: 620px) {
+  :root {
+    --header-h: 56px;
+    --scene-pad: 20px;
+  }
+
+  .scene {
+    justify-content: flex-start;
+    padding-block: calc(var(--header-h) + var(--sp-4)) var(--sp-5);
+  }
+}

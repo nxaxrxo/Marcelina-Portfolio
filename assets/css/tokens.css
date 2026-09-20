@@ -1,0 +1,127 @@
+/* ============================================================================
+   tokens.css — the single source of design tokens for the whole site
+   ----------------------------------------------------------------------------
+   Contract : docs/architecture.md §8 (every token name + the fluid type scale)
+   Palette  : docs/css-style-ruleset.md §2   Type: docs/css-style-ruleset.md §3
+   Files    : tokens.css → base.css → layout.css → components.css → scenes.css
+
+   This file declares values ONLY. No element styling, no layout, no components.
+   Fonts are loaded from Google Fonts via <link> in index.html; the stacks below
+   are full local fallbacks so the page never depends on @font-face.
+   ============================================================================ */
+
+:root {
+  /* ---------------------------------------------------------------- colour */
+  --c-blush: #F7DDE5;
+  --c-rose: #E96B93;
+  --c-rose-deep: #D94F7A;
+  --c-lavender: #E7DDF4;
+  --c-periwinkle: #DDE7F7;
+  --c-peach: #F8E0D2;
+  --c-butter: #F6EBCB;
+  --c-mint: #DDEDE3;
+  --c-cream: #FFF8F5;
+  --c-warm-white: #FFFCFA;
+  --c-plum: #3D2945;
+  --c-mauve: #6B596D;
+  --c-line: #EEDDE4;
+  --c-ink: var(--c-plum);
+  --c-ink-soft: var(--c-mauve);
+
+  /* -------------------------------------------------------------- semantic */
+  --bg: var(--c-cream);                 /* 60% cream / warm-white base          */
+  --bg-alt: var(--c-warm-white);        /* alternating warm surface             */
+  --surface: var(--c-warm-white);       /* cards, menus, panels                 */
+  --surface-2: var(--c-blush);          /* 20% blush: soft tinted surface       */
+  --text: var(--c-ink);                 /* plum body text                       */
+  --text-soft: var(--c-ink-soft);       /* mauve — AA only at >= 15px (see §8)  */
+  --accent: var(--c-rose);              /* signature pink accent                */
+  --accent-strong: var(--c-rose-deep);  /* emphasis / hover                     */
+  --focus: var(--c-rose);               /* focus ring colour                    */
+  /* soft plum-tinted shadows — restrained, never black, derived from --c-plum */
+  --shadow-sm: 0 1px 2px rgba(61, 41, 69, 0.05), 0 2px 8px rgba(61, 41, 69, 0.04);
+  --shadow-md: 0 6px 18px rgba(61, 41, 69, 0.07), 0 2px 6px rgba(61, 41, 69, 0.05);
+  --shadow-lg: 0 18px 48px rgba(61, 41, 69, 0.10), 0 6px 16px rgba(61, 41, 69, 0.06);
+
+  /* ------------------------------------------------------------------ type */
+  --font-display: "DM Serif Display", "Playfair Display", "Iowan Old Style",
+    "Palatino Linotype", Palatino, "Book Antiqua", Georgia, "Times New Roman", serif;
+  --font-body: "Manrope", "DM Sans", "Plus Jakarta Sans", "Nunito Sans",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --fs-display: clamp(3.25rem, 13vw, 15rem);   /* hero name only         */
+  --fs-h1: clamp(2.25rem, 5vw, 4rem);
+  --fs-h2: clamp(1.75rem, 3.2vw, 2.5rem);
+  --fs-h3: clamp(1.125rem, 1.6vw, 1.5rem);
+  --fs-body: clamp(0.9375rem, 1.05vw, 1.0625rem);
+  --fs-sm: 0.875rem;
+  --fs-label: 0.75rem;
+
+  --lh-tight: 1.08;
+  --lh-body: 1.62;
+  --tracking-label: 0.14em;
+
+  /* ----------------------------------------------------------------- space */
+  /* 8px system */
+  --sp-1: 8px;
+  --sp-2: 16px;
+  --sp-3: 24px;
+  --sp-4: 32px;
+  --sp-5: 48px;
+  --sp-6: 64px;
+  --sp-7: 96px;
+
+  /* ---------------------------------------------------------------- radius */
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --r-pill: 999px;
+
+  /* ---------------------------------------------------------------- motion */
+  --dur-fast: 180ms;
+  --dur-mid: 320ms;
+  --dur-slow: 520ms;
+  --ease-out: cubic-bezier(.22, .61, .36, 1);
+  --ease-soft: cubic-bezier(.33, 1, .68, 1);
+
+  /* ---------------------------------------------------------------- layout */
+  --header-h: 72px;
+  --scene-pad: clamp(24px, 5vw, 96px);
+  --max-w: 1440px;
+
+  --z-bg: 0;
+  --z-atmos: 1;
+  --z-deco: 2;
+  --z-type: 3;
+  --z-media: 4;
+  --z-fg: 5;
+  --z-header: 50;
+  --z-overlay: 80;
+  --z-lightbox: 100;
+
+  /* -------------------------------------------------------- scene tinting */
+  /* A scene publishes its pastel family as --tint (+ --tint-2 companion) and
+     the generic .scene__bg / decorative layers read it. Adding a category tint
+     is one line here, never new selectors in scenes.css. */
+  --tint: var(--c-blush);
+  --tint-2: var(--c-lavender);
+}
+
+/* --------------------------------------------------------------------------
+   Per-category tint families.
+   Keyed by the generated `.scene__bg--{tint}` class from the portfolio markup
+   (architecture §3) so a scene's background family travels with its section.
+   -------------------------------------------------------------------------- */
+.scene__bg--blush      { --tint: var(--c-blush);      --tint-2: var(--c-rose); }
+.scene__bg--lavender   { --tint: var(--c-lavender);   --tint-2: var(--c-periwinkle); }
+.scene__bg--peach      { --tint: var(--c-peach);      --tint-2: var(--c-butter); }
+.scene__bg--butter     { --tint: var(--c-butter);     --tint-2: var(--c-peach); }
+.scene__bg--mint       { --tint: var(--c-mint);       --tint-2: var(--c-periwinkle); }
+.scene__bg--periwinkle { --tint: var(--c-periwinkle); --tint-2: var(--c-lavender); }
+.scene__bg--rose       { --tint: var(--c-rose);       --tint-2: var(--c-blush); }
+
+/* Fixed scenes also publish a family: hero is blush→lavender, the explorer is
+   airy warm-white, the contact scene is warmer (peach) per plan §27. */
+[data-scene="hero"]     { --tint: var(--c-blush);      --tint-2: var(--c-lavender); }
+[data-scene="explorer"] { --tint: var(--c-warm-white); --tint-2: var(--c-blush); }
+[data-scene="contact"]  { --tint: var(--c-peach);      --tint-2: var(--c-butter); }

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300" role="img" aria-label="Placeholder image">
+  <title>Placeholder image</title>
+  <desc>Soft blush to lavender gradient with a faint organic blob and an empty centred label slot.</desc>
+
+  <defs>
+    <linearGradient id="phBase" x1="0" y1="0" x2="400" y2="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F7DDE5"/>
+      <stop offset="0.52" stop-color="#F0DDEA"/>
+      <stop offset="1" stop-color="#E7DDF4"/>
+    </linearGradient>
+    <radialGradient id="phGlow" cx="0.5" cy="0.46" r="0.62">
+      <stop offset="0" stop-color="#FFFCFA" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#FFFCFA" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="400" height="300" fill="url(#phBase)"/>
+  <rect width="400" height="300" fill="url(#phGlow)"/>
+
+  <!-- faint organic blob -->
+  <path d="M200 54C254 54 298 86 301 128C304 168 316 204 288 230C260 256 212 248 182 246C144 244 100 232 93 196C86 158 92 114 123 84C153 55 169 54 200 54Z"
+        fill="#FFFCFA" fill-opacity="0.24" stroke="#6B596D" stroke-opacity="0.16" stroke-width="2"/>
+
+  <!-- centred label slot (the item label is overlaid here by JS) -->
+  <rect x="142" y="136" width="116" height="28" rx="14"
+        fill="#FFFCFA" fill-opacity="0.5" stroke="#6B596D" stroke-opacity="0.16" stroke-width="1.5"/>
+</svg>
