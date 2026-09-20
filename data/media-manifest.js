@@ -14,7 +14,7 @@
    See docs/image-guide.md for the drop-in workflow.
    ============================================================================ */
 window.MP_MEDIA_MANIFEST = {
-  "generatedAt": "2026-09-20T17:40:18.018Z",
+  "generatedAt": "2026-09-20T18:35:27.470Z",
   "hero": {
     "files": [
       "MainPage_BodyPortrait.png"
@@ -59,12 +59,12 @@ window.MP_MEDIA_MANIFEST = {
         "Concept art of an alien butterfly-looking thing..jpg"
       ],
       "paintings-sketches-hobby": [
-        "A painted portrait of a man.jpg",
-        "A sketch of a bird on a branch..jpg",
-        "a sketch of a skull..jpg",
-        "An abstract painting..jpg",
-        "Guitarist..jpg",
-        "Painting of a cat..jpg"
+        "01 - A sketch of a bird on a branch.jpg",
+        "02 - A painted portrait of a man.jpg",
+        "03 - A sketch of a skull.jpg",
+        "04 - An abstract painting.jpg",
+        "05 - Guitarist.jpg",
+        "06 - Painting of a cat.jpg"
       ]
     },
     "photography": {

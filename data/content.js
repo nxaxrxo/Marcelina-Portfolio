@@ -56,7 +56,29 @@ window.MP_DATA = {
       ]
     },
 
-    /* ======================== 2. CARD DESIGN ======================== */
+    /* ====================== 2. LEVEL DESIGN ====================== */
+    {
+      id: "level-design",
+      title: "Level Design",
+      tint: "rose",
+      cover: "assets/img/categories/level-design.jpg",
+      island: { size: "lg", preset: 3, x: 21, y: 79, rot: 7 },
+      blurb: "Tireless — levels 8 and 9, the final two levels, designed in Unreal Engine 5.",
+      projects: [
+        {
+          id: "level-design-tireless",
+          title: "Tireless — Levels 8 & 9",
+          description: "A game I worked on with my husband. I was responsible for the visual aesthetic of the final two levels and for placing every individual part of them together — including obstacles and everything in between — using Unreal Engine 5.",
+          specs: [
+            { label: "Project", value: "Tireless — Levels 8 & 9" },
+            { label: "Tools", value: "Unreal Engine 5" }
+          ],
+          media: []
+        }
+      ]
+    },
+
+    /* ======================== 3. CARD DESIGN ======================== */
     {
       id: "sketches",
       title: "Card Design",
@@ -78,7 +100,7 @@ window.MP_DATA = {
       ]
     },
 
-    /* ================== 3. SKETCHES AND PAINTINGS ================== */
+    /* ================== 4. SKETCHES AND PAINTINGS ================== */
     {
       id: "paintings",
       title: "Sketches and Paintings",
@@ -110,7 +132,7 @@ window.MP_DATA = {
       ]
     },
 
-    /* ====================== 4. PHOTOGRAPHY ====================== */
+    /* ====================== 5. PHOTOGRAPHY ====================== */
     {
       id: "photography",
       title: "Photography",
@@ -136,28 +158,6 @@ window.MP_DATA = {
           specs: [
             { label: "Project", value: "Nature / personal" },
             { label: "Tools", value: "Nikon D-3200, NIKKOR 18-105mm" }
-          ],
-          media: []
-        }
-      ]
-    },
-
-    /* ====================== 5. LEVEL DESIGN ====================== */
-    {
-      id: "level-design",
-      title: "Level Design",
-      tint: "rose",
-      cover: "assets/img/categories/level-design.jpg",
-      island: { size: "lg", preset: 3, x: 21, y: 79, rot: 7 },
-      blurb: "Tireless — levels 8 and 9, the final two levels, designed in Unreal Engine 5.",
-      projects: [
-        {
-          id: "level-design-tireless",
-          title: "Tireless — Levels 8 & 9",
-          description: "A game I worked on with my husband. I was responsible for the visual aesthetic of the final two levels and for placing every individual part of them together — including obstacles and everything in between — using Unreal Engine 5.",
-          specs: [
-            { label: "Project", value: "Tireless — Levels 8 & 9" },
-            { label: "Tools", value: "Unreal Engine 5" }
           ],
           media: []
         }

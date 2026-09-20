@@ -1,4 +1,23 @@
-﻿<!-- COMMIT: 0.0.0 - 2026-09-20 -->
+﻿<!-- COMMIT: 0.0.1 - 2026-09-20 -->
+
+# Changes
+
+## [2026-09-20] City photography replaced; sketches reordered; level design moved to second
+
+- **System:** Content layer, media assets, category order (data/content.js, ssets/img/projects/)
+- **Summary:** Three changes. (1) City photography images replaced with new high-resolution versions from the shared portfolio folder. (2) Sketches and Paintings hobby project reordered so the bird on a branch image displays first. (3) Level Design category moved from position 5 to position 2, right after Pixel Art.
+- **Files:**
+  - ssets/img/projects/photography/photography-city/ — 4 images replaced with new versions
+  - ssets/img/projects/paintings/paintings-sketches-hobby/ — 6 images renamed with numeric prefixes for display order
+  - data/content.js — categories reordered: Pixel Art, Level Design, Card Design, Sketches and Paintings, Photography
+  - data/media-manifest.js — regenerated
+  - docs/changes.md — this entry
+- **Reason:** Owner request — replace city photography with new set, reorder bird image first, move level design to second position.
+- **Risk:** low — asset replacement and content reorder only.
+- **Test:** 
+ode tools/check.js — PASS; 
+ode tools/build-manifest.js — regenerated successfully.
+<!-- COMMIT: 0.0.0 - 2026-09-20 -->
 
 # Changes
 
@@ -537,4 +556,5 @@ ode --check assets/js/carousel.js -> OK.
   (exit 0 when every file is present). At the time of this build `check.js` reports one FAIL â€”
   `index.html` does not exist yet â€” and warnings for not-yet-supplied images; both are expected
   until the parallel agents deliver their files.
+
 
