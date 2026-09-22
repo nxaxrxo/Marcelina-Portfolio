@@ -37,7 +37,6 @@ MP.categories = (function () {
 
   var SVG_NS = 'http://www.w3.org/2000/svg';
   var MAX_CURSOR = 6;
-  var MAX_PARALLAX = 26;
 
   /* Seven distinct organic presets: a wide three-lobed rock, a soft cloud
      pebble, a lobed rounded-square, a wide cushion pebble, a kidney bean, a
@@ -637,8 +636,6 @@ MP.categories = (function () {
       measure();
     }
 
-    var s = scrollApi();
-    var progress = (s && typeof s.progress === 'function') ? (s.progress('explorer') || 0) : 0;
     var frame = fieldEl.getBoundingClientRect();
     var localX = cursor.x - frame.left;
     var localY = cursor.y - frame.top;
@@ -646,7 +643,7 @@ MP.categories = (function () {
     for (var i = 0; i < islands.length; i++) {
       var island = islands[i];
       var ox = 0;
-      var oy = (progress - 0.5) * -MAX_PARALLAX;
+      var oy = 0;
 
       if (cursor.active) {
         var dx = localX - island.cx;
@@ -660,7 +657,7 @@ MP.categories = (function () {
       }
 
       ox = clamp(ox, -MAX_CURSOR, MAX_CURSOR);
-      oy = clamp(oy, -MAX_PARALLAX, MAX_PARALLAX);
+      oy = clamp(oy, -MAX_CURSOR, MAX_CURSOR);
       island.media.style.translate = ox.toFixed(2) + 'px ' + oy.toFixed(2) + 'px';
     }
   }

@@ -116,24 +116,6 @@
 
     state.layers = layers;
     state.speeds = speeds;
-
-    state.offScroll = MP.scroll.add(function () {
-      var reduced = !!(MP.motion && MP.motion.reduced);
-      var progress = (typeof MP.scroll.progress === 'function') ? MP.scroll.progress('hero') : 0;
-      if (typeof progress !== 'number' || !isFinite(progress)) progress = 0;
-
-      for (var i = 0; i < layers.length; i++) {
-        var layer = layers[i];
-        if (reduced) {
-          if (layer.style.transform) layer.style.transform = '';
-          continue;
-        }
-        // Centred on 0.5: the hero rests at ~0.5 when it fills the viewport,
-        // so its layers sit at rest on load and drift apart as the user scrolls.
-        var offset = -(progress - 0.5) * speeds[i] * PARALLAX_RANGE;
-        layer.style.transform = 'translate3d(0,' + offset.toFixed(2) + 'px,0)';
-      }
-    });
   }
 
   /* --- public API --------------------------------------------------------- */

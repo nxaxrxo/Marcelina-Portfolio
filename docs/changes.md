@@ -1,4 +1,19 @@
-﻿<!-- COMMIT: 0.0.1 - 2026-09-20 -->
+﻿<!-- COMMIT: 0.0.2 - 2026-09-22 -->
+
+## [2026-09-22] Scroll-linked motion removed
+
+- **System:** Scroll-driven animations (assets/js/portfolio.js, assets/js/motion.js, assets/js/hero.js, assets/js/categories.js)
+- **Summary:** Removed all scroll-linked opacity, transform, and parallax effects. Portfolio scenes no longer fade in/out or slide as the user scrolls. Hero layers, background elements, and category islands no longer shift on scroll. Elements are now always fully visible and static. Load-time entrance animations are preserved.
+- **Files:**
+  - `assets/js/portfolio.js` - `frame()` simplified to lazy media loading and active scene tracking only; removed scroll-driven opacity/transform on `.portfolio__info` and `.portfolio__media`; removed `clearMotion()` and `animated` property
+  - `assets/js/motion.js` - `renderParallax()` replaced with no-op; parallax Y-offset on `[data-parallax]` elements disabled
+  - `assets/js/hero.js` - `setupParallax()` no longer subscribes to the scroll engine; hero layers stay static
+  - `assets/js/categories.js` - scroll-based parallax on islands removed (`oy = 0`); cursor hover influence preserved; `MAX_PARALLAX` constant removed
+- **Reason:** Owner request to remove the disappearing/appearing scroll effect completely.
+- **Risk:** low - removes animation only; no layout, data, or interaction logic changed
+- **Test:** Visual verification in browser - elements stay fully visible while scrolling
+
+<!-- COMMIT: 0.0.1 - 2026-09-20 -->
 
 # Changes
 

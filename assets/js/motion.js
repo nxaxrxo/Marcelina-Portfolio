@@ -158,25 +158,7 @@ MP.motion = (function () {
 
   /* Targets come from the RAW scene progress; the element transform is then
      interpolated toward that target — the only source of smoothness. */
-  function renderParallax(ctx) {
-    if (!parallaxStates || !parallaxStates.length || isReduced()) { return; }
-    var u = util();
-    var dampFn = (u && typeof u.damp === 'function') ? u.damp : localDamp;
-    var dt = (ctx && typeof ctx.dt === 'number') ? ctx.dt : 0;
-    for (var i = 0; i < parallaxStates.length; i++) {
-      var st = parallaxStates[i];
-      var p = (st.sceneId && ctx && typeof ctx.progress === 'function')
-        ? ctx.progress(st.sceneId) : 0.5;
-      var target = (p - 0.5) * 2 * MAX_SHIFT * st.speed;
-      st.current = (dt > 0) ? dampFn(st.current, target, PARALLAX_LAMBDA, dt) : target;
-      var active = p > 0 && p < 1;
-      if (active !== st.wc) { st.el.style.willChange = active ? 'transform' : ''; st.wc = active; }
-      if (Math.abs(st.current - st.last) > 0.02) {
-        st.el.style.transform = 'translate3d(0,' + round2(st.current) + 'px,0)';
-        st.last = st.current;
-      }
-    }
-  }
+  function renderParallax() { return; }
 
   function resetParallax() {
     if (!parallaxStates) { return; }

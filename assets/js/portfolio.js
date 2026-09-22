@@ -267,8 +267,7 @@ MP.portfolio = (function () {
       projects: Array.isArray(category.projects) ? category.projects : [],
       index: 0,
       carousel: null,
-      mediaBuilt: false,
-      animated: false
+      mediaBuilt: false
     };
   }
 
@@ -417,43 +416,12 @@ MP.portfolio = (function () {
     if (activeState) { activeState = null; }
   }
 
-  function clearMotion(scene) {
-    if (!scene.animated) { return; }
-    scene.info.style.transform = '';
-    scene.info.style.opacity = '';
-    scene.media.style.transform = '';
-    scene.media.style.opacity = '';
-    scene.animated = false;
-  }
-
   function frame() {
     if (!scenes.length) { return; }
-    var reduced = isReduced();
     for (var i = 0; i < scenes.length; i++) {
       var scene = scenes[i];
       var phase = scenePhase(scene.id);
-
-      /* Lazy media: build when the scene first approaches the viewport instead
-         of loading every category up front (plan section 37). */
       if (phase.enter > 0.001 || phase.visible) { ensureMedia(scene); }
-
-      if (reduced) { clearMotion(scene); continue; }
-
-      var enter = phase.enter;
-      var exit = phase.exit;
-      var enterRemaining = 1 - enter;
-      var presence = clamp(enter * (1 - exit), 0, 1);
-
-      /* Typography layer travels less than the photography layer. */
-      scene.info.style.transform =
-        'translate3d(0,' + (enterRemaining * 30 - exit * 26).toFixed(2) + 'px,0) scale(' +
-        (1 - enterRemaining * 0.02).toFixed(3) + ')';
-      scene.media.style.transform =
-        'translate3d(0,' + (enterRemaining * 48 - exit * 22).toFixed(2) + 'px,0) scale(' +
-        (1 - enterRemaining * 0.05).toFixed(3) + ')';
-      scene.info.style.opacity = String(0.1 + 0.9 * presence);
-      scene.media.style.opacity = String(0.08 + 0.92 * presence);
-      scene.animated = true;
     }
     trackActive();
   }
