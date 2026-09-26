@@ -299,7 +299,7 @@ Open it in any plain text editor (Notepad, VS Code, TextEdit — anything). At t
 | Contact heading, message and links | `CONTACT SCENE` |
 | Copyright line and footer links | `FOOTER` |
 
-The contact links (email, Instagram, etc.) currently use obvious placeholders like `hello@lorem-ipsum.example`. Replace them with your real details, or delete a line you don't use — the site simply hides anything you remove.
+The contact links live in the `CONTACT SCENE` section: the email is set to `kulismarcelina@gmail.com` and LinkedIn points at the real profile. Change the words between the quote marks to use different details, or delete a line you don't use — the site simply hides anything you remove.
 
 Nothing you type here can "break" the code as long as you stay between the quote marks.
 

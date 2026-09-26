@@ -173,7 +173,7 @@ window.MP_DATA = {
     portrait: "assets/img/contact/LastPage_BodyPortrait.png",
     portraitAlt: "Portrait of the artist, Marcelina Miani",
     links: [
-      { type: "email", label: "Email", value: "hello@lorem-ipsum.example", href: "mailto:hello@lorem-ipsum.example" },
+      { type: "email", label: "Email", value: "kulismarcelina@gmail.com", href: "mailto:kulismarcelina@gmail.com" },
       { type: "link", label: "LinkedIn", value: "marcelina-miani-96b627317", href: "https://www.linkedin.com/in/marcelina-miani-96b627317/" }
     ]
   },

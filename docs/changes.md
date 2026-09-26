@@ -1,4 +1,27 @@
-﻿<!-- COMMIT: 0.0.2 - 2026-09-22 -->
+﻿<!-- COMMIT: 0.0.3 - 2026-09-26 -->
+
+## [2026-09-26] Email button points at the real address
+
+- **System:** Contact scene (`data/content.js`, `index.html`)
+- **Summary:** The "Email me" button now opens a message to `kulismarcelina@gmail.com` instead of the
+  `hello@lorem-ipsum.example` placeholder. Both the live button (driven by `data/content.js`) and the
+  no-JS fallback in `index.html` were changed, so the address is identical with JavaScript on or off.
+- **Files:**
+  - `data/content.js` - the `contact.links` email entry: `value` and `href` are now
+    `kulismarcelina@gmail.com`
+  - `index.html` - the static no-JS CTA fallback's `mailto:` href
+  - `docs/image-guide.md` - the "replace the placeholder contact details" note no longer names a
+    placeholder email
+  - `docs/changes.md` - this entry
+- **Reason:** Owner request: "change the email button to be for kulismarcelina@gmail.com".
+- **Decisions:** Both `value` and `href` were updated because `contact.js#hrefFor()` prefers `href`
+  when it exists and falls back to `value` - leaving one behind would have made the button and its
+  no-JS fallback disagree. The visible label stays "Email".
+- **Risk:** low - address substitution only; no DOM hook, module API, CSS or data key changed.
+- **Test:** `node tools/check.js` -> PASS (18 JS files, 0 warnings); `node --check data/content.js`
+  -> OK; a repo-wide search shows no `hello@lorem-ipsum.example` left in shipped files.
+
+<!-- COMMIT: 0.0.2 - 2026-09-22 -->
 
 ## [2026-09-22] Scroll-linked motion removed
 
